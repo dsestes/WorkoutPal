@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamic Workout Player</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:16px;background:#fafafa;color:#222}
+  header{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+  select,button,textarea{font-size:1rem}
+  #clock{margin-left:auto;font-weight:bold;font-size:1.25rem}
+  h2{margin:14px 0 6px;font-size:1.15rem;border-bottom:2px solid #ccc}
+  ul{list-style:none;padding:0;margin:0}
+  li{margin:6px 0;padding:8px;border-radius:6px;cursor:pointer;transition:background .2s}
+  li:hover{background:#e7f1ff}
+  .gif{max-width:100%;margin-top:6px;border-radius:6px;display:none}
+  button.timer{margin-left:6px;padding:3px 8px;border:none;border-radius:6px;background:#007bff;color:#fff;cursor:pointer}
+  textarea{width:100%;height:160px;margin-top:6px}
+  pre{background:#eee;padding:8px;border-radius:6px;font-size:.8rem;white-space:pre-wrap;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <label for="workoutSelect"><strong>Workout:</strong></label>
+  <select id="workoutSelect"></select>
+  <span id="clock">00:00</span>
+</header>
+<div id="routine"></div>
+<section style="margin-top:24px">
+  <h2>Add / Update Workout</h2>
+  <p>Paste a workout in JSON and hit <em>Save</em>.</p>
+  <textarea id="jsonInput" placeholder='{"title":"Sample","categories":[... ]}'></textarea>
+  <button id="saveBtn">Save</button>
+  <pre>Schema:
+{
+  "title":"My Workout",
+  "categories":[{ "name":"Warm-Up","rounds":1,
+    "exercises":[{"description":"Squat","duration":20,"unit":"reps","gif":"https://..."}]}]
+}</pre>
+</section>
+
+<script>
+// ---- DEFAULTS (compact to avoid truncation) ----
+const armAb = {title:"Arm & Ab Day",categories:[
+  {name:"Warm-Up",rounds:1,exercises:[
+    {description:"Arm circles",duration:30,unit:"seconds",gif:"https://media1.tenor.com/m/Qn3bnZKRZVUAAAAd/arm-circle.gif"},
+    {description:"Cat/Cow",duration:60,unit:"seconds",gif:"https://media.tenor.com/HmGoILALi7YAAAAM/cat-yoga.gif"},
+    {description:"World's Greatest Stretch",duration:60,unit:"seconds",gif:""},
+    {description:"Glute Bridge Hold",duration:60,unit:"seconds",gif:""}
+  ]},
+  {name:"Main Circuit",rounds:3,exercises:[
+    {description:"Dumbbell Bench/Floor Press",duration:12,unit:"reps",gif:""},
+    {description:"One-Arm Row (per side)",duration:10,unit:"reps",gif:""},
+    {description:"Dumbbell Lateral Raise",duration:12,unit:"reps",gif:""},
+    {description:"Curl to Arnold Press",duration:12,unit:"reps",gif:""},
+    {description:"Bird Dogs (per side)",duration:30,unit:"seconds",gif:""},
+    {description:"Deadbug",duration:12,unit:"reps",gif:""},
+    {description:"Forearm Side Plank (per side)",duration:6,unit:"reps",gif:""}
+  ]},
+  {name:"Cool-Down",rounds:1,exercises:[
+    {description:"Child's Pose + Side Reach",duration:60,unit:"seconds",gif:""},
+    {description:"Kneeling Hip Flexor Stretch",duration:60,unit:"seconds",gif:""},
+    {description:"Supine Twist",duration:60,unit:"seconds",gif:""},
+    {description:"Cobra Press-Up",duration:10,unit:"reps",gif:""},
+    {description:"Pelvic Tilts",duration:60,unit:"seconds",gif:""},
+    {description:"Foam Roll low back/glutes",duration:120,unit:"seconds",gif:""}
+  ]}
+]};
+
+const legGlute = {title:"Leg + Glute Day",categories:[
+  {name:"Warm-Up",rounds:1,exercises:[
+    {description:"Bodyweight Squats",duration:20,unit:"reps",gif:""},
+    {description:"Glute Bridges",duration:10,unit:"reps",gif:""},
+    {description:"Reverse Lunges (each leg)",duration:10,unit:"reps",gif:""},
+    {description:"Hip Circles with Band",duration:30,unit:"seconds",gif:""},
+    {description:"Treadmill Incline Walk",duration:60,unit:"seconds",gif:""}
+  ]},
+  {name:"Strength Block",rounds:4,exercises:[
+    {description:"Barbell Back Squat",duration:10,unit:"reps",gif:""},
+    {description:"Romanian Deadlift",duration:12,unit:"reps",gif:""},
+    {description:"Bulgarian Split Squat (per leg)",duration:10,unit:"reps",gif:""},
+    {description:"Glute Kickback (per leg)",duration:15,unit:"reps",gif:""}
+  ]},
+  {name:"Glute Finisher",rounds:2,exercises:[
+    {description:"Hip Thrusts",duration:12,unit:"reps",gif:""},
+    {description:"Walking Lunges",duration:20,unit:"reps",gif:""}
+  ]},
+  {name:"Optional Add-On",rounds:1,exercises:[
+    {description:"Sled Pushes",duration:30,unit:"seconds",gif:""},
+    {description:"Weighted Step-Ups",duration:10,unit:"reps",gif:""}
+  ]}
+]};
+
+const defaultWorkouts=[armAb,legGlute];
+let workouts=[];
+
+function populateSelect(){
+  const sel=document.getElementById('workoutSelect');
+  sel.innerHTML='';
+  workouts.forEach((w,i)=>sel.add(new Option(w.title,i)));
+}
+function renderWorkout(idx){
+  const cont=document.getElementById('routine');
+  cont.innerHTML='';
+  const w=workouts[idx]; if(!w) return;
+  w.categories.forEach(cat=>{
+    const sec=document.createElement('section');
+    sec.innerHTML=`<h2>${cat.name} (x${cat.rounds})</h2>`;
+    const ul=document.createElement('ul');
+    cat.exercises.forEach((ex,i)=>{
+      const gid=`gif-${idx}-${cat.name.replace(/\W/g,'')}-${i}`;
+      const li=document.createElement('li');
+      li.innerHTML=`${ex.description} — ${ex.duration} ${ex.unit}${ex.unit==='seconds'?` <button class='timer' data-sec='${ex.duration}'>⏱</button>`:''}<img id='${gid}' class='gif' src='${ex.gif}'>`;
+      li.addEventListener('click',()=>{const img=document.getElementById(gid);img.style.display=img.style.display==='block'?'none':'block';});
+      const b=li.querySelector('button.timer');
+      if(b) b.addEventListener('click',e=>{e.stopPropagation();startTimer(parseInt(b.dataset.sec));});
+      ul.appendChild(li);
+    });
+    sec.appendChild(ul); cont.appendChild(sec);
+  });
+}
+let tInt=null;
+function startTimer(s){
+  clearInterval(tInt);let r=s;const c=document.getElementById('clock');c.textContent=format(r);
+  tInt=setInterval(()=>{r--;c.textContent=format(Math.max(r,0));if(r<0)clearInterval(tInt);},1000);
+}
+function format(t){return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
+
+function saveWorkout(){
+  const txt=document.getElementById('jsonInput').value.trim(); if(!txt) return;
+  try{
+    const obj=JSON.parse(txt);
+    const store=JSON.parse(localStorage.getItem('workouts')||'[]');
+    store.push(obj); localStorage.setItem('workouts',JSON.stringify(store));
+    workouts.push(obj); populateSelect(); document.getElementById('workoutSelect').value=workouts.length-1; renderWorkout(workouts.length-1); document.getElementById('jsonInput').value='';
+  }catch(e){alert('Bad JSON: '+e.message);}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  workouts=[...defaultWorkouts,...JSON.parse(localStorage.getItem('workouts')||'[]')];
+  populateSelect(); renderWorkout(0);
+  document.getElementById('workoutSelect').addEventListener('change',e=>renderWorkout(e.target.value));
+  document.getElementById('saveBtn').addEventListener('click', saveWorkout);
+});
+</script>
+</body>
+</html>
