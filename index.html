@@ -82,18 +82,40 @@
       );
     }
 
-    const INITIAL_WORKOUT = {
-      title: "Sample Workout",
-      categories: [
-        { name: "Block A", rounds: 2, exercises: [
-          { description: "Push Ups", duration: 10, unit: "reps", instructions: "Chest to floor." },
-          { description: "Plank", duration: 30, unit: "seconds", instructions: "Keep hips level." }
-        ]}
-      ]
-    };
+    const INITIAL_LIBRARY = [
+      {
+        title: "Arm & Ab Workout",
+        categories: [
+          { name: "Arm & Ab Circuit", rounds: 3, exercises: [
+            { description: "Plank Hold", duration: 45, unit: "seconds", instructions: "Forearms on ground, elbows under shoulders, keep hips level and glutes engaged." },
+            { description: "Bicycle Crunches", duration: 20, unit: "reps", instructions: "Rotate torso, bring elbow to opposite knee, slow and controlled." },
+            { description: "Russian Twists", duration: 20, unit: "reps", instructions: "Lean back slightly, twist from core, touch floor each side." },
+            { description: "Dumbbell Curl to Press", duration: 12, unit: "reps", instructions: "Curl dumbbells up, then rotate wrists and press overhead. Avoid swinging." },
+            { description: "Bench Dips", duration: 12, unit: "reps", instructions: "Hands on bench behind, lower until elbows 90°, press up. Keep shoulders down." },
+            { description: "Hammer Curls", duration: 12, unit: "reps", instructions: "Neutral grip, curl dumbbells, keep elbows tucked." },
+            { description: "Hanging Knee Raises", duration: 12, unit: "reps", instructions: "Hang from bar, lift knees toward chest, avoid swinging." }
+          ]}
+        ]
+      },
+      {
+        title: "Leg & Glute Workout",
+        categories: [
+          { name: "Leg & Glute Circuit", rounds: 3, exercises: [
+            { description: "Glute Bridge", duration: 15, unit: "reps", instructions: "Heels near glutes, press hips up, squeeze glutes at top." },
+            { description: "Side-Lying Clamshells", duration: 15, unit: "reps", instructions: "Band above knees, lift top knee without rolling hips back." },
+            { description: "Bulgarian Split Squat", duration: 12, unit: "reps", instructions: "Back foot on bench, lower front thigh parallel, drive through heel." },
+            { description: "Step Ups", duration: 12, unit: "reps", instructions: "Step onto bench with whole foot, press through heel, control down." },
+            { description: "Romanian Deadlift", duration: 12, unit: "reps", instructions: "Hinge at hips with slight knee bend, back flat, stretch hamstrings, stand tall." },
+            { description: "Side Plank Hip Lifts", duration: 12, unit: "reps", instructions: "Elbow under shoulder, lift hips straight up and down, avoid sagging." },
+            { description: "Bodyweight Squat Jump", duration: 15, unit: "reps", instructions: "Soft landing, chest tall, use arms for drive. Focus on power for skiing." }
+          ]}
+        ]
+      }
+    ];
 
     function App() {
-      const [workout, setWorkout] = useLocalStorage("workout_simple", INITIAL_WORKOUT);
+      const [library, setLibrary] = useLocalStorage("workout_library", INITIAL_LIBRARY);
+      const [currentIndex, setCurrentIndex] = useState(0);
       const [mode, setMode] = useState("PLAN");
       const [b, setB] = useState(0);
       const [r, setR] = useState(1);
@@ -102,6 +124,7 @@
       const [seed, setSeed] = useState(0);
       const [timerDone, setTimerDone] = useState(false);
 
+      const workout = library[currentIndex];
       const blocks = workout.categories;
       const currentBlock = blocks[b];
       const exList = currentBlock?.exercises || [];
@@ -123,14 +146,17 @@
           {mode === "PLAN" && (
             <div className="space-y-4">
               <h1 className="text-xl font-bold mb-2 text-center">{workout.title}</h1>
+              <select className="w-full mb-4 p-2 border rounded" value={currentIndex} onChange={(e)=>{ setCurrentIndex(Number(e.target.value)); setB(0); setR(1); setE(0); }}>
+                {library.map((w,i)=>(<option key={i} value={i}>{w.title}</option>))}
+              </select>
               {blocks.map((blk,bi)=>(
                 <div key={bi} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{blk.name}</div>
                     <input type="number" className="w-20 text-right bg-gray-50 px-2 py-1 rounded border" value={blk.rounds} onChange={(e)=>{
-                      const clone = {...workout};
-                      clone.categories[bi].rounds = Number(e.target.value)||1;
-                      setWorkout(clone);
+                      const clone = [...library];
+                      clone[currentIndex].categories[bi].rounds = Number(e.target.value)||1;
+                      setLibrary(clone);
                     }} />
                   </div>
                   {(blk.exercises||[]).map((item,i)=>(
@@ -144,17 +170,17 @@
                         ev.preventDefault();
                         const from = Number(ev.dataTransfer.getData('text/plain'));
                         const to = i; if (isNaN(from) || from===to) return;
-                        const clone = {...workout};
-                        const arr = [...clone.categories[bi].exercises];
+                        const clone = [...library];
+                        const arr = [...clone[currentIndex].categories[bi].exercises];
                         const [moved] = arr.splice(from,1);
                         arr.splice(to,0,moved);
-                        clone.categories[bi].exercises = arr;
-                        setWorkout(clone);
+                        clone[currentIndex].categories[bi].exercises = arr;
+                        setLibrary(clone);
                       }}
                       onChange={(ei, next)=>{
-                        const clone = {...workout};
-                        clone.categories[bi].exercises[ei] = next;
-                        setWorkout(clone);
+                        const clone = [...library];
+                        clone[currentIndex].categories[bi].exercises[ei] = next;
+                        setLibrary(clone);
                       }}
                     />
                   ))}
@@ -180,7 +206,7 @@
               {timerDone && <div className="text-green-600">Timer done — tap Next</div>}
               <div className="flex w-full gap-2">
                 <GhostButton onClick={prev}>◀ Prev</GhostButton>
-                {current.unit === 'seconds' && <GhostButton onClick={()=>setRunning(r=>!r)}>{running?"Pause":"Start"}</GhostButton>}
+                <GhostButton onClick={()=>setMode("PLAN")}>Exit</GhostButton>
                 <Button onClick={next}>Next ✓</Button>
               </div>
             </div>
