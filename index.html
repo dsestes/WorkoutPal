@@ -8,226 +8,251 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    html, body, #root { height: 100%; margin: 0; padding: 0; }
-    body { background: #f9fafb; overflow-x: hidden; }
-    input, select { font-size: 16px; } /* prevent iOS zoom */
-  </style>
+  <style>html,body,#root{height:100%;margin:0;padding:0;}</style>
 </head>
 <body>
   <div id="root"></div>
 
-  <script type="text/babel" data-presets="env,react">
-    const { useEffect, useRef, useState } = React;
-
-    const Button = ({ className = "", children, ...props }) => (
-      <button
-        className={`px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold w-full ${className}`}
-        {...props}
-      >{children}</button>
+  <!-- Pure HTML + JSX via Babel. No modules, no TypeScript. -->
+  <script type="text/babel" data-presets="env,react" data-plugins="proposal-optional-chaining">
+    // ---------- UI PRIMITIVES ----------
+    const Card = ({ className="", children }) => <div className={`rounded-2xl shadow border border-gray-200 bg-white ${className}`}>{children}</div>;
+    const CardBody = ({ className="", children }) => <div className={`p-4 sm:p-6 ${className}`}>{children}</div>;
+    const Button = ({ className="", children, ...props }) => (
+      <button className={`px-4 py-2 rounded-xl border bg-gray-900 text-white hover:opacity-90 active:opacity-80 disabled:opacity-40 ${className}`} {...props}>{children}</button>
     );
-    const GhostButton = ({ className = "", children, ...props }) => (
-      <button
-        className={`px-4 py-2 rounded-lg border border-gray-300 bg-white w-full ${className}`}
-        {...props}
-      >{children}</button>
+    const GhostButton = ({ className="", children, ...props }) => (
+      <button className={`px-3 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 ${className}`} {...props}>{children}</button>
+    );
+    const Badge = ({ children, tone="gray" }) => (
+      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs border ${tone==='green'?'bg-green-50 text-green-700 border-green-200':tone==='blue'?'bg-blue-50 text-blue-700 border-blue-200':'bg-gray-50 text-gray-700 border-gray-200'}`}>{children}</span>
     );
 
-    function useLocalStorage(key, initialValue) {
-      const [state, setState] = useState(() => {
-        try { const raw = localStorage.getItem(key); return raw != null ? JSON.parse(raw) : initialValue; } catch { return initialValue; }
+    // ---------- HOOKS ----------
+    const toMs = (sec)=>Math.max(0, Math.round(Number(sec||0)*1000));
+    function useLocalStorage(key, initialValue){
+      const [state, setState] = React.useState(()=>{
+        try{ const raw = window.localStorage.getItem(key); return raw!=null? JSON.parse(raw): initialValue; }catch{ return initialValue; }
       });
-      useEffect(() => { try { localStorage.setItem(key, JSON.stringify(state)); } catch {} }, [key, state]);
-      return [state, setState];
+      React.useEffect(()=>{ try{ window.localStorage.setItem(key, JSON.stringify(state)); }catch{} }, [key,state]);
+      return [state,setState];
     }
-
-    function useCountdown(ms, running) {
-      const [remaining, setRemaining] = useState(ms);
-      const rafRef = useRef(null);
-      useEffect(() => { setRemaining(ms); }, [ms]);
-      useEffect(() => {
-        if (!running) { cancelAnimationFrame(rafRef.current); return; }
+    function useCountdown(ms, running){
+      const [remaining, setRemaining] = React.useState(ms);
+      const rafRef = React.useRef(null);
+      React.useEffect(()=>{ setRemaining(ms); },[ms]);
+      React.useEffect(()=>{
+        if(!running){ cancelAnimationFrame(rafRef.current); return; }
         const start = performance.now();
-        const loop = (t) => {
+        const loop = (t)=>{
           const elapsed = t - start;
           const next = Math.max(0, ms - elapsed);
           setRemaining(next);
-          if (next > 0) rafRef.current = requestAnimationFrame(loop);
+          if(next>0) rafRef.current = requestAnimationFrame(loop);
         };
         rafRef.current = requestAnimationFrame(loop);
-        return () => cancelAnimationFrame(rafRef.current);
-      }, [ms, running]);
-      return [remaining, setRemaining];
+        return ()=>cancelAnimationFrame(rafRef.current);
+      },[ms,running]);
+      return [remaining,setRemaining];
     }
 
-    function ExerciseRow({ item, index, onDragStart, onDragOver, onDrop, onChange }) {
-      return (
-        <div
-          draggable
-          onDragStart={(e)=>onDragStart(e,index)}
-          onDragOver={(e)=>onDragOver(e,index)}
-          onDrop={(e)=>onDrop(e,index)}
-          className="flex flex-col gap-2 p-3 rounded-lg border border-gray-200 bg-white"
-        >
-          <input className="w-full bg-transparent border-b text-base" value={item.description} onChange={(e)=>onChange(index,{...item, description:e.target.value})} />
-          <div className="flex gap-2 w-full">
-            <input className="flex-1 bg-gray-50 px-2 py-1 rounded border" type="number" value={Number(item.duration||0)} onChange={(e)=>onChange(index,{...item, duration: Number(e.target.value)})} />
-            <select className="flex-1 bg-gray-50 px-2 py-1 rounded border" value={item.unit} onChange={(e)=>onChange(index,{...item, unit: e.target.value})}>
-              <option value="seconds">sec</option>
-              <option value="reps">reps</option>
-            </select>
-          </div>
-          <input className="w-full bg-transparent border-b text-sm" placeholder="Form cues" value={item.instructions || ""} onChange={(e)=>onChange(index,{...item, instructions:e.target.value})} />
-        </div>
-      );
-    }
-
+    // ---------- DEFAULT LIBRARY ----------
     const INITIAL_LIBRARY = [
       {
         title: "Arm & Ab Workout",
         categories: [
-          { name: "Arm & Ab Circuit", rounds: 3, exercises: [
-            { description: "Plank Hold", duration: 45, unit: "seconds", instructions: "Forearms on ground, elbows under shoulders, keep hips level and glutes engaged." },
-            { description: "Bicycle Crunches", duration: 20, unit: "reps", instructions: "Rotate torso, bring elbow to opposite knee, slow and controlled." },
-            { description: "Russian Twists", duration: 20, unit: "reps", instructions: "Lean back slightly, twist from core, touch floor each side." },
-            { description: "Dumbbell Curl to Press", duration: 12, unit: "reps", instructions: "Curl dumbbells up, then rotate wrists and press overhead. Avoid swinging." },
-            { description: "Bench Dips", duration: 12, unit: "reps", instructions: "Hands on bench behind, lower until elbows 90°, press up. Keep shoulders down." },
-            { description: "Hammer Curls", duration: 12, unit: "reps", instructions: "Neutral grip, curl dumbbells, keep elbows tucked." },
-            { description: "Hanging Knee Raises", duration: 12, unit: "reps", instructions: "Hang from bar, lift knees toward chest, avoid swinging." }
+          { name: "Warm-Up", rounds: 1, exercises: [
+            { description: "Arm Circles", duration: 30, unit: "seconds", instructions: "Small→large circles, forward & backward." },
+            { description: "Cat-Cow", duration: 6, unit: "reps", instructions: "Breathe with movement; move through full spine." },
+            { description: "Torso Twists", duration: 20, unit: "reps", instructions: "Rotate gently; keep hips facing forward." }
+          ]},
+          { name: "Core (Mat)", rounds: 3, exercises: [
+            { description: "Plank Hold", duration: 45, unit: "seconds", instructions: "Elbows under shoulders; ribs down; glutes on; no sagging." },
+            { description: "Bicycle Crunches", duration: 20, unit: "reps", instructions: "Slow & controlled; shoulder off mat; exhale on twist." },
+            { description: "Russian Twists", duration: 20, unit: "reps", instructions: "Neutral spine; rotate from ribcage; tap floor each side." }
+          ]},
+          { name: "Upper Body (Weights)", rounds: 3, exercises: [
+            { description: "Dumbbell Curl to Press", duration: 12, unit: "reps", instructions: "No swinging; rotate to neutral on press; lock ribs." },
+            { description: "Bench Dips", duration: 12, unit: "reps", instructions: "Shoulders down/back; stop ~90° elbow; full lockout up." },
+            { description: "Hammer Curls", duration: 12, unit: "reps", instructions: "Elbows tucked; neutral grip; control negative." }
+          ]},
+          { name: "Cooldown", rounds: 1, exercises: [
+            { description: "Seated Forward Fold", duration: 45, unit: "seconds", instructions: "Hinge at hips; soft knees; relax neck/jaw." },
+            { description: "Cross-Body Shoulder", duration: 30, unit: "seconds", instructions: "Gently pull arm across; keep shoulder down." },
+            { description: "Child's Pose", duration: 45, unit: "seconds", instructions: "Sit back to heels; reach long; slow breaths." }
           ]}
         ]
       },
       {
         title: "Leg & Glute Workout",
         categories: [
-          { name: "Leg & Glute Circuit", rounds: 3, exercises: [
-            { description: "Glute Bridge", duration: 15, unit: "reps", instructions: "Heels near glutes, press hips up, squeeze glutes at top." },
-            { description: "Side-Lying Clamshells", duration: 15, unit: "reps", instructions: "Band above knees, lift top knee without rolling hips back." },
-            { description: "Bulgarian Split Squat", duration: 12, unit: "reps", instructions: "Back foot on bench, lower front thigh parallel, drive through heel." },
-            { description: "Step Ups", duration: 12, unit: "reps", instructions: "Step onto bench with whole foot, press through heel, control down." },
-            { description: "Romanian Deadlift", duration: 12, unit: "reps", instructions: "Hinge at hips with slight knee bend, back flat, stretch hamstrings, stand tall." },
-            { description: "Side Plank Hip Lifts", duration: 12, unit: "reps", instructions: "Elbow under shoulder, lift hips straight up and down, avoid sagging." },
-            { description: "Bodyweight Squat Jump", duration: 15, unit: "reps", instructions: "Soft landing, chest tall, use arms for drive. Focus on power for skiing." }
+          { name: "Warm-Up", rounds: 1, exercises: [
+            { description: "Bodyweight Squats", duration: 12, unit: "reps", instructions: "Feet shoulder-width; sit back; chest tall." },
+            { description: "Hip Circles", duration: 30, unit: "seconds", instructions: "Hands on hips; draw big circles; both directions." },
+            { description: "Leg Swings", duration: 10, unit: "reps", instructions: "Front↔back; brace core; build range gradually." }
+          ]},
+          { name: "Glute Activation (Mat)", rounds: 3, exercises: [
+            { description: "Glute Bridge", duration: 15, unit: "reps", instructions: "Heels close; drive through heels; pause/squeeze at top." },
+            { description: "Clamshells", duration: 15, unit: "reps", instructions: "Band above knees; no hip roll; small controlled ROM." },
+            { description: "Side Plank Hip Lifts", duration: 12, unit: "reps", instructions: "Elbow under shoulder; stack feet; lift straight up/down." }
+          ]},
+          { name: "Leg Strength (Weights)", rounds: 3, exercises: [
+            { description: "Bulgarian Split Squat", duration: 12, unit: "reps", instructions: "Long stance; torso tall; knee tracks over mid-foot." },
+            { description: "Step Ups", duration: 12, unit: "reps", instructions: "Full foot on bench; drive through heel; control down." },
+            { description: "Romanian Deadlift", duration: 12, unit: "reps", instructions: "Hinge at hips; flat back; slight knee bend; stretch hams." },
+            { description: "Squat Jumps", duration: 15, unit: "reps", instructions: "Soft landing; chest tall; power — good for skiing." }
+          ]},
+          { name: "Cooldown", rounds: 1, exercises: [
+            { description: "Standing Quad", duration: 30, unit: "seconds", instructions: "Knees together; slight tuck; tall posture." },
+            { description: "Figure-4", duration: 30, unit: "seconds", instructions: "Cross ankle over knee; sit back; keep spine long." },
+            { description: "Seated Hamstring", duration: 45, unit: "seconds", instructions: "Extend leg; hinge forward; breathe into stretch." }
           ]}
         ]
       }
     ];
 
-    function App() {
-      const [library, setLibrary] = useLocalStorage("workout_library", INITIAL_LIBRARY);
-      const [currentIndex, setCurrentIndex] = useState(0);
-      const [mode, setMode] = useState("PLAN");
-      const [b, setB] = useState(0);
-      const [r, setR] = useState(1);
-      const [e, setE] = useState(0);
-      const [running, setRunning] = useState(false);
-      const [seed, setSeed] = useState(0);
-      const [timerDone, setTimerDone] = useState(false);
+    // ---------- SCHEDULER ----------
+    function buildSchedule(blocks){
+      const steps = [];
+      (blocks||[]).forEach((blk, bi)=>{
+        const rounds = Math.max(1, Number(blk.rounds||1));
+        for(let r=1;r<=rounds;r++){
+          (blk.exercises||[]).forEach((_, ei)=>steps.push({bi,ri:r,ei}));
+        }
+      });
+      return steps; // [{bi,ri,ei}]
+    }
 
-      const workout = library[currentIndex];
-      const blocks = workout.categories;
-      const currentBlock = blocks[b];
-      const exList = currentBlock?.exercises || [];
-      const current = exList[e];
+    // ---------- APP ----------
+    function App(){
+      const [library, setLibrary] = useLocalStorage("workout_library_v2", INITIAL_LIBRARY);
+      const [currentIndex, setCurrentIndex] = useLocalStorage("workout_current_index", 0);
+      const workout = library[currentIndex] || INITIAL_LIBRARY[0];
+      const blocks = workout.categories || [];
 
-      useEffect(()=>{ setRunning(false); setSeed(s=>s+1); setTimerDone(false); }, [b,r,e,current?.unit,current?.duration]);
+      const [mode, setMode] = useLocalStorage("mode", "PLAN");
+      const [schedule, setSchedule] = React.useState([]);
+      const [idx, setIdx] = React.useState(0);
+      const cur = schedule[idx];
+      const currentBlock = cur ? blocks[cur.bi] : null;
+      const current = cur && currentBlock ? currentBlock.exercises?.[cur.ei] : null;
 
-      const next = () => {
-        if (!currentBlock) return;
-        if (e+1 < exList.length) { setE(e+1); return; }
-        if (r < currentBlock.rounds) { setE(0); setR(r+1); return; }
-        if (b+1 < blocks.length) { setB(b+1); setR(1); setE(0); return; }
-        setMode("PLAN");
-      };
-      const prev = () => { if (e>0) setE(e-1); };
+      const [running, setRunning] = React.useState(false);
+      const [timerDone, setTimerDone] = React.useState(false);
+      const [seed, setSeed] = React.useState(0);
+
+      React.useEffect(()=>{ setRunning(false); setTimerDone(false); setSeed(s=>s+1); },[idx, current?.unit, current?.duration]);
+
+      const startRun = ()=>{ setSchedule(buildSchedule(blocks)); setIdx(0); setMode("RUN"); };
+      const next = ()=>{ if (idx+1 < schedule.length) setIdx(idx+1); else setMode("PLAN"); };
+      const prev = ()=>{ if (idx>0) setIdx(idx-1); };
+
+      const blockName = (currentBlock?.name || "").toLowerCase();
+      const isMat = blockName.includes("mat");
+      const isWeights = blockName.includes("weight");
 
       return (
-        <div className="max-w-md mx-auto p-4">
-          {mode === "PLAN" && (
-            <div className="space-y-4">
-              <h1 className="text-xl font-bold mb-2 text-center">{workout.title}</h1>
-              <select className="w-full mb-4 p-2 border rounded" value={currentIndex} onChange={(e)=>{ setCurrentIndex(Number(e.target.value)); setB(0); setR(1); setE(0); }}>
-                {library.map((w,i)=>(<option key={i} value={i}>{w.title}</option>))}
-              </select>
-              {blocks.map((blk,bi)=>(
-                <div key={bi} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="font-semibold">{blk.name}</div>
-                    <input type="number" className="w-20 text-right bg-gray-50 px-2 py-1 rounded border" value={blk.rounds} onChange={(e)=>{
-                      const clone = [...library];
-                      clone[currentIndex].categories[bi].rounds = Number(e.target.value)||1;
-                      setLibrary(clone);
-                    }} />
-                  </div>
-                  {(blk.exercises||[]).map((item,i)=>(
-                    <ExerciseRow
-                      key={i}
-                      item={item}
-                      index={i}
-                      onDragStart={(ev)=>ev.dataTransfer.setData('text/plain', String(i))}
-                      onDragOver={(ev)=>ev.preventDefault()}
-                      onDrop={(ev)=>{
-                        ev.preventDefault();
-                        const from = Number(ev.dataTransfer.getData('text/plain'));
-                        const to = i; if (isNaN(from) || from===to) return;
-                        const clone = [...library];
-                        const arr = [...clone[currentIndex].categories[bi].exercises];
-                        const [moved] = arr.splice(from,1);
-                        arr.splice(to,0,moved);
-                        clone[currentIndex].categories[bi].exercises = arr;
-                        setLibrary(clone);
-                      }}
-                      onChange={(ei, next)=>{
-                        const clone = [...library];
-                        clone[currentIndex].categories[bi].exercises[ei] = next;
-                        setLibrary(clone);
-                      }}
-                    />
-                  ))}
-                </div>
-              ))}
-              <Button onClick={()=>{ setMode("RUN"); setB(0); setR(1); setE(0); }}>Start ▶</Button>
-            </div>
-          )}
-
-          {mode === "RUN" && current && (
-            <div className={`flex flex-col justify-center items-center text-center h-screen gap-6 p-6 rounded-xl border ${timerDone ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200'}`}>
-              <div className="text-sm text-gray-500">{currentBlock.name} • Round {r}/{currentBlock.rounds}</div>
-              <div className="text-5xl font-extrabold break-words w-full">{current.description}</div>
-              {current.instructions && <div className="text-base text-gray-700 max-w-[20rem]">{current.instructions}</div>}
-              {current.unit === 'seconds' ? (
-                <BigTimer key={seed} ms={current.duration*1000} running={running} onToggle={()=>setRunning(r=>!r)} onComplete={()=>setTimerDone(true)} />
-              ) : (
-                <div>
-                  <div className="text-4xl font-bold">{current.duration} reps</div>
-                  <Button onClick={next}>Done ✓</Button>
-                </div>
-              )}
-              {timerDone && <div className="text-green-600">Timer done — tap Next</div>}
-              <div className="flex w-full gap-2">
-                <GhostButton onClick={prev}>◀ Prev</GhostButton>
-                <GhostButton onClick={()=>setMode("PLAN")}>Exit</GhostButton>
-                <Button onClick={next}>Next ✓</Button>
+        <div className="min-h-screen bg-gray-100 text-gray-900">
+          <header className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b">
+            <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center gap-3">
+              <div className="flex items-center gap-2">
+                <select className="border rounded-lg px-2 py-1" value={currentIndex} onChange={e=>setCurrentIndex(Number(e.target.value))}>
+                  {library.map((w,i)=>(<option key={i} value={i}>{w.title}</option>))}
+                </select>
+                <Badge tone="gray">{blocks.length} blocks</Badge>
               </div>
+              {mode==="PLAN" ? <Button onClick={startRun}>Start ▶</Button> : <GhostButton onClick={()=>setMode("PLAN")}>Exit</GhostButton>}
             </div>
-          )}
+          </header>
+
+          <main className="max-w-5xl mx-auto px-4 py-6">
+            {mode==="PLAN" && (
+              <div className="space-y-4">
+                {blocks.map((blk,bi)=>(
+                  <Card key={bi}><CardBody>
+                    <div className="flex items-center justify-between">
+                      <div className="font-semibold flex items-center gap-2">
+                        {blk.name}
+                        <Badge tone={/mat/i.test(blk.name)?'green':/weight/i.test(blk.name)?'blue':'gray'}>{/mat/i.test(blk.name)?'MAT':/weight/i.test(blk.name)?'WEIGHTS':'BLOCK'}</Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">Rounds</span>
+                        <input type="number" min="1" className="w-20 text-right bg-gray-50 px-2 py-1 rounded-lg border" value={blk.rounds}
+                          onChange={e=>{
+                            const nextLib = [...library];
+                            nextLib[currentIndex] = { ...nextLib[currentIndex] };
+                            nextLib[currentIndex].categories = [...nextLib[currentIndex].categories];
+                            nextLib[currentIndex].categories[bi] = { ...nextLib[currentIndex].categories[bi], rounds: Math.max(1, Number(e.target.value)||1) };
+                            setLibrary(nextLib);
+                          }} />
+                      </div>
+                    </div>
+                    <ul className="mt-2 space-y-1">
+                      {(blk.exercises||[]).map((ex,ei)=>(
+                        <li key={ei} className="text-sm text-gray-700">
+                          <span className="text-gray-500 mr-2">{ei+1}.</span>
+                          {ex.description} — {ex.duration} {ex.unit}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardBody></Card>
+                ))}
+              </div>
+            )}
+
+            {mode==="RUN" && current && (
+              <Card><CardBody>
+                <div className="text-sm text-gray-500">
+                  {currentBlock.name} • Round {cur.ri}/{currentBlock.rounds} • Block {cur.bi+1}/{blocks.length}
+                  <span className="ml-2"><Badge tone={isMat?'green':isWeights?'blue':'gray'}>{isMat?'MAT':isWeights?'WEIGHTS':'BLOCK'}</Badge></span>
+                </div>
+                <div className="text-4xl sm:text-5xl font-extrabold mt-2 break-words">{current.description}</div>
+                {current.instructions && <div className="text-base text-gray-700 max-w-[30rem] mt-2">{current.instructions}</div>}
+
+                {current.unit==='seconds' ? (
+                  <BigTimer key={seed} ms={toMs(current.duration)} running={running} onToggle={()=>setRunning(r=>!r)} onComplete={()=>setTimerDone(true)} />
+                ) : (
+                  <div className="mt-4">
+                    <div className="text-3xl font-bold">{current.duration} reps</div>
+                    <Button className="mt-2" onClick={next}>Done ✓</Button>
+                  </div>
+                )}
+
+                {timerDone && <div className="text-green-600 mt-2">Timer done — tap Next</div>}
+                <div className="flex gap-2 mt-6">
+                  <GhostButton onClick={prev}>◀ Prev</GhostButton>
+                  <GhostButton onClick={()=>setMode("PLAN")}>Exit</GhostButton>
+                  <Button onClick={next}>Next ✓</Button>
+                </div>
+              </CardBody></Card>
+            )}
+          </main>
         </div>
       );
     }
 
-    function BigTimer({ ms, running, onToggle, onComplete }) {
+    function BigTimer({ ms, running, onToggle, onComplete }){
       const [remaining] = useCountdown(ms, running);
       const seconds = Math.ceil(remaining/1000);
-      useEffect(()=>{ if (remaining===0) onComplete?.(); }, [remaining,onComplete]);
+      React.useEffect(()=>{ if(remaining===0) onComplete?.(); },[remaining,onComplete]);
       return (
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2 mt-6">
           <div className={`text-7xl font-bold ${seconds===0?'text-red-600':''}`}>{seconds}</div>
           <GhostButton onClick={onToggle}>{running?"Pause":"Start"}</GhostButton>
         </div>
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
+    // Console sanity checks
+    ;(function(){
+      try {
+        const core = INITIAL_LIBRARY[0].categories[1];
+        const steps = (function(b){const s=[]; const r=Math.max(1,Number(b.rounds||1)); for(let i=1;i<=r;i++){ (b.exercises||[]).forEach((_,ei)=>s.push({ei})); } return s;})(core);
+        console.log("[tests] Core steps:", steps.length, "expected 9");
+      } catch {}
+    })();
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(<App />);
   </script>
 </body>
