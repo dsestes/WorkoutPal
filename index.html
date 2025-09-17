@@ -13,7 +13,6 @@
 <body>
   <div id="root"></div>
 
-  <!-- Pure HTML + JSX compiled in-browser. No modules/TypeScript. -->
   <script type="text/babel" data-presets="env,react" data-plugins="proposal-optional-chaining">
     // ---------- UI PRIMITIVES ----------
     const Card = ({ className="", children }) => <div className={`rounded-2xl shadow border border-gray-200 bg-white ${className}`}>{children}</div>;
@@ -53,7 +52,7 @@
         rafRef.current = requestAnimationFrame(loop);
         return ()=>cancelAnimationFrame(rafRef.current);
       },[ms,running]);
-      return [remaining,setRemaining];
+      return [remaining];
     }
 
     // ---------- DEFAULT LIBRARY ----------
@@ -123,14 +122,36 @@
       return steps; // [{bi,ri,ei}]
     }
 
+    // ---------- VALIDATION ----------
+    function validateWorkout(obj){
+      if(!obj || typeof obj !== 'object') return false;
+      if(typeof obj.title !== 'string') return false;
+      if(!Array.isArray(obj.categories)) return false;
+      for(const c of obj.categories){
+        if(typeof c?.name !== 'string') return false;
+        if(typeof c?.rounds !== 'number' || !(c.rounds>=1)) return false;
+        if(!Array.isArray(c.exercises)) return false;
+        for(const e of c.exercises){
+          if(typeof e?.description !== 'string') return false;
+          if(typeof e?.duration !== 'number') return false;
+          if(!['seconds','reps'].includes(e?.unit)) return false;
+        }
+      }
+      return true;
+    }
+
     // ---------- APP ----------
     function App(){
       const [library, setLibrary] = useLocalStorage("workout_library_v2", INITIAL_LIBRARY);
       const [currentIndex, setCurrentIndex] = useLocalStorage("workout_current_index", 0);
+      const [mode, setMode] = useLocalStorage("mode", "PLAN");
+      const [banner, setBanner] = React.useState(null);
+      const [showImport, setShowImport] = React.useState(false);
+      const [importText, setImportText] = React.useState("");
+
       const workout = library[currentIndex] || INITIAL_LIBRARY[0];
       const blocks = workout.categories || [];
 
-      const [mode, setMode] = useLocalStorage("mode", "PLAN");
       const [schedule, setSchedule] = React.useState([]);
       const [idx, setIdx] = React.useState(0);
       const cur = schedule[idx];
@@ -143,16 +164,34 @@
 
       React.useEffect(()=>{ setRunning(false); setTimerDone(false); setSeed(s=>s+1); },[idx, current?.unit, current?.duration]);
 
-      const startRun = ()=>{ setSchedule(buildSchedule(blocks)); setIdx(0); setMode("RUN"); };
-      const next = ()=>{ if (idx+1 < schedule.length) setIdx(idx+1); else setMode("PLAN"); };
-      const prev = ()=>{ if (idx>0) setIdx(idx-1); };
+      const startRun = ()=>{ setSchedule(buildSchedule(blocks)); setIdx(0); setMode('RUN'); };
+      const next = ()=>{ if(idx+1<schedule.length) setIdx(idx+1); else setMode('PLAN'); };
+      const prev = ()=>{ if(idx>0) setIdx(idx-1); };
 
-      const blockName = (currentBlock?.name || "").toLowerCase();
-      const isMat = blockName.includes("mat");
-      const isWeights = blockName.includes("weight");
+      function importFromText(){
+        try{
+          const data = JSON.parse(importText);
+          const arr = Array.isArray(data) ? data : [data];
+          const valid = arr.filter(validateWorkout);
+          if(valid.length===0) throw new Error('No valid workouts');
+          const nextLib = [...library, ...valid];
+          setLibrary(nextLib);
+          setCurrentIndex(nextLib.length - valid.length);
+          setShowImport(false); setImportText("");
+          setBanner(`Imported ${valid.length} workout${valid.length>1?'s':''}.`);
+          setTimeout(()=>setBanner(null), 4000);
+        }catch(err){
+          setBanner('Paste import failed: invalid JSON or schema.');
+          setTimeout(()=>setBanner(null), 5000);
+        }
+      }
+
+      const blockName = (currentBlock?.name || '').toLowerCase();
+      const isMat = blockName.includes('mat');
+      const isWeights = blockName.includes('weight');
 
       return (
-        <div className="min-h-screen bg-gray-100 text-gray-900">
+        <div className="min-h-screen text-gray-900">
           <header className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b">
             <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center gap-3">
               <div className="flex items-center gap-2">
@@ -161,6 +200,9 @@
                   {library.map((w,i)=>(<option key={i} value={i}>{w.title}</option>))}
                 </select>
                 <Badge tone="gray">{blocks.length} blocks</Badge>
+                {mode==='PLAN' && (
+                  <GhostButton className="px-2 py-1 text-sm" onClick={()=>setShowImport(true)} aria-label="Import JSON">Import</GhostButton>
+                )}
               </div>
               {mode === 'PLAN' ? (
                 <Button onClick={startRun}>Start ▶</Button>
@@ -168,7 +210,29 @@
                 <GhostButton onClick={()=> setMode('PLAN')}>Exit</GhostButton>
               )}
             </div>
+            {banner && (
+              <div className="max-w-5xl mx-auto px-4 pb-2">
+                <div className="text-sm px-3 py-2 rounded-lg border bg-amber-50 border-amber-200 text-amber-800">{banner}</div>
+              </div>
+            )}
           </header>
+
+          {/* Paste JSON Modal */}
+          {showImport && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl">
+                <div className="p-4 border-b font-semibold">Import Workouts (Paste JSON)</div>
+                <div className="p-4">
+                  <textarea className="w-full h-48 border rounded-lg p-2 text-sm font-mono" placeholder='{"title":"My Routine","categories":[{"name":"Block","rounds":3,"exercises":[{"description":"Plank","duration":45,"unit":"seconds"}]}]}'
+                    value={importText} onChange={e=>setImportText(e.target.value)}></textarea>
+                  <div className="flex justify-end gap-2 mt-3">
+                    <GhostButton onClick={()=>{setShowImport(false); setImportText("");}}>Cancel</GhostButton>
+                    <Button onClick={importFromText}>Import</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <main className="max-w-5xl mx-auto px-4 py-6">
             {mode === 'PLAN' && (
@@ -231,7 +295,8 @@
                   </div>
                 )}
 
-                {timerDone && <div className="text-green-600 mt-2">Timer done — tap Next</div>}
+                {timerDone && <div className="text-green-600 mt-2">Timer done — tap Next</div>
+                }
                 <div className="flex gap-2 mt-6">
                   <GhostButton onClick={prev}>◀ Prev</GhostButton>
                   <GhostButton onClick={()=> setMode('PLAN')}>Exit</GhostButton>
@@ -255,15 +320,6 @@
         </div>
       );
     }
-
-    // Console sanity checks (lightweight)
-    ;(function(){
-      try {
-        const core = INITIAL_LIBRARY[0].categories[1];
-        const steps = (function(b){const s=[]; const r=Math.max(1,Number(b.rounds||1)); for(let i=1;i<=r;i++){ (b.exercises||[]).forEach((_,ei)=>s.push({ei})); } return s;})(core);
-        console.log("[tests] Core steps:", steps.length, "expected 9");
-      } catch {}
-    })();
 
     const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(<App />);
