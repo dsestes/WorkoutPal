@@ -3,32 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#111827" />
   <title>Workout Runner</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    html, body, #root { height: 100%; }
-    body { background: #f3f4f6; }
+    html, body, #root { height: 100%; margin: 0; padding: 0; }
+    body { background: #f9fafb; overflow-x: hidden; }
+    input, select { font-size: 16px; } /* prevent iOS zoom */
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel" data-presets="env,react">
-    const { useEffect, useMemo, useRef, useState } = React;
+    const { useEffect, useRef, useState } = React;
 
     const Button = ({ className = "", children, ...props }) => (
       <button
-        className={`px-4 py-2 rounded-xl border bg-gray-900 text-white hover:opacity-90 active:opacity-80 disabled:opacity-40 ${className}`}
+        className={`px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold w-full ${className}`}
         {...props}
       >{children}</button>
     );
     const GhostButton = ({ className = "", children, ...props }) => (
       <button
-        className={`px-3 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 ${className}`}
+        className={`px-4 py-2 rounded-lg border border-gray-300 bg-white w-full ${className}`}
         {...props}
       >{children}</button>
     );
@@ -40,6 +40,7 @@
       useEffect(() => { try { localStorage.setItem(key, JSON.stringify(state)); } catch {} }, [key, state]);
       return [state, setState];
     }
+
     function useCountdown(ms, running) {
       const [remaining, setRemaining] = useState(ms);
       const rafRef = useRef(null);
@@ -59,25 +60,24 @@
       return [remaining, setRemaining];
     }
 
-    function DraggableRow({ item, index, onDragStart, onDragOver, onDrop, onChange }) {
+    function ExerciseRow({ item, index, onDragStart, onDragOver, onDrop, onChange }) {
       return (
         <div
           draggable
           onDragStart={(e)=>onDragStart(e,index)}
           onDragOver={(e)=>onDragOver(e,index)}
           onDrop={(e)=>onDrop(e,index)}
-          className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 cursor-grab"
+          className="flex flex-col gap-2 p-3 rounded-lg border border-gray-200 bg-white"
         >
-          <span className="text-gray-400 select-none">≡</span>
-          <input className="flex-1 min-w-0 bg-transparent outline-none text-sm" value={item.description} onChange={(e)=>onChange(index,{...item, description:e.target.value})} />
-          <div className="flex gap-2 items-center">
-            <input className="w-16 text-right bg-gray-50 px-2 py-1 rounded-lg border text-sm" type="number" value={Number(item.duration||0)} onChange={(e)=>onChange(index,{...item, duration: Number(e.target.value)})} />
-            <select className="w-24 bg-gray-50 px-2 py-1 rounded-lg border text-sm" value={item.unit} onChange={(e)=>onChange(index,{...item, unit: e.target.value})}>
+          <input className="w-full bg-transparent border-b text-base" value={item.description} onChange={(e)=>onChange(index,{...item, description:e.target.value})} />
+          <div className="flex gap-2 w-full">
+            <input className="flex-1 bg-gray-50 px-2 py-1 rounded border" type="number" value={Number(item.duration||0)} onChange={(e)=>onChange(index,{...item, duration: Number(e.target.value)})} />
+            <select className="flex-1 bg-gray-50 px-2 py-1 rounded border" value={item.unit} onChange={(e)=>onChange(index,{...item, unit: e.target.value})}>
               <option value="seconds">sec</option>
               <option value="reps">reps</option>
             </select>
           </div>
-          <input className="flex-1 min-w-0 bg-transparent outline-none text-sm" placeholder="Form cues" value={item.instructions || ""} onChange={(e)=>onChange(index,{...item, instructions:e.target.value})} />
+          <input className="w-full bg-transparent border-b text-sm" placeholder="Form cues" value={item.instructions || ""} onChange={(e)=>onChange(index,{...item, instructions:e.target.value})} />
         </div>
       );
     }
@@ -122,19 +122,19 @@
         <div className="max-w-md mx-auto p-4">
           {mode === "PLAN" && (
             <div className="space-y-4">
-              <h1 className="text-xl font-bold mb-2">{workout.title}</h1>
+              <h1 className="text-xl font-bold mb-2 text-center">{workout.title}</h1>
               {blocks.map((blk,bi)=>(
                 <div key={bi} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{blk.name}</div>
-                    <input type="number" className="w-16 text-right bg-gray-50 px-2 py-1 rounded-lg border text-sm" value={blk.rounds} onChange={(e)=>{
+                    <input type="number" className="w-20 text-right bg-gray-50 px-2 py-1 rounded border" value={blk.rounds} onChange={(e)=>{
                       const clone = {...workout};
                       clone.categories[bi].rounds = Number(e.target.value)||1;
                       setWorkout(clone);
                     }} />
                   </div>
                   {(blk.exercises||[]).map((item,i)=>(
-                    <DraggableRow
+                    <ExerciseRow
                       key={i}
                       item={item}
                       index={i}
@@ -165,10 +165,10 @@
           )}
 
           {mode === "RUN" && current && (
-            <div className="flex flex-col gap-4 items-center text-center">
+            <div className={`flex flex-col justify-center items-center text-center h-screen gap-6 p-6 rounded-xl border ${timerDone ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200'}`}>
               <div className="text-sm text-gray-500">{currentBlock.name} • Round {r}/{currentBlock.rounds}</div>
-              <div className="text-3xl font-bold">{current.description}</div>
-              <div className="text-gray-700">{current.instructions}</div>
+              <div className="text-5xl font-extrabold break-words w-full">{current.description}</div>
+              {current.instructions && <div className="text-base text-gray-700 max-w-[20rem]">{current.instructions}</div>}
               {current.unit === 'seconds' ? (
                 <BigTimer key={seed} ms={current.duration*1000} running={running} onToggle={()=>setRunning(r=>!r)} onComplete={()=>setTimerDone(true)} />
               ) : (
@@ -178,7 +178,7 @@
                 </div>
               )}
               {timerDone && <div className="text-green-600">Timer done — tap Next</div>}
-              <div className="flex gap-2">
+              <div className="flex w-full gap-2">
                 <GhostButton onClick={prev}>◀ Prev</GhostButton>
                 {current.unit === 'seconds' && <GhostButton onClick={()=>setRunning(r=>!r)}>{running?"Pause":"Start"}</GhostButton>}
                 <Button onClick={next}>Next ✓</Button>
@@ -195,7 +195,7 @@
       useEffect(()=>{ if (remaining===0) onComplete?.(); }, [remaining,onComplete]);
       return (
         <div className="flex flex-col items-center gap-2">
-          <div className={`text-6xl font-bold ${seconds===0?'text-red-600':''}`}>{seconds}</div>
+          <div className={`text-7xl font-bold ${seconds===0?'text-red-600':''}`}>{seconds}</div>
           <GhostButton onClick={onToggle}>{running?"Pause":"Start"}</GhostButton>
         </div>
       );
