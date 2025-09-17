@@ -8,12 +8,12 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>html,body,#root{height:100%;margin:0;padding:0;}</style>
+  <style>html,body,#root{height:100%;margin:0;padding:0;} body{background:#f6f7f9;}</style>
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- Pure HTML + JSX via Babel. No modules, no TypeScript. -->
+  <!-- Pure HTML + JSX compiled in-browser. No modules/TypeScript. -->
   <script type="text/babel" data-presets="env,react" data-plugins="proposal-optional-chaining">
     // ---------- UI PRIMITIVES ----------
     const Card = ({ className="", children }) => <div className={`rounded-2xl shadow border border-gray-200 bg-white ${className}`}>{children}</div>;
@@ -156,29 +156,37 @@
           <header className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b">
             <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center gap-3">
               <div className="flex items-center gap-2">
-                <select className="border rounded-lg px-2 py-1" value={currentIndex} onChange={e=>setCurrentIndex(Number(e.target.value))}>
+                <select className="border rounded-lg px-2 py-1" value={currentIndex}
+                  onChange={e=>setCurrentIndex(Number(e.target.value))}>
                   {library.map((w,i)=>(<option key={i} value={i}>{w.title}</option>))}
                 </select>
                 <Badge tone="gray">{blocks.length} blocks</Badge>
               </div>
-              {mode==="PLAN" ? <Button onClick={startRun}>Start ▶</Button> : <GhostButton onClick={()=>setMode("PLAN")}>Exit</GhostButton>}
+              {mode === 'PLAN' ? (
+                <Button onClick={startRun}>Start ▶</Button>
+              ) : (
+                <GhostButton onClick={()=> setMode('PLAN')}>Exit</GhostButton>
+              )}
             </div>
           </header>
 
           <main className="max-w-5xl mx-auto px-4 py-6">
-            {mode==="PLAN" && (
+            {mode === 'PLAN' && (
               <div className="space-y-4">
-                {blocks.map((blk,bi)=>(
+                {blocks.map((blk, bi) => (
                   <Card key={bi}><CardBody>
                     <div className="flex items-center justify-between">
                       <div className="font-semibold flex items-center gap-2">
                         {blk.name}
-                        <Badge tone={/mat/i.test(blk.name)?'green':/weight/i.test(blk.name)?'blue':'gray'}>{/mat/i.test(blk.name)?'MAT':/weight/i.test(blk.name)?'WEIGHTS':'BLOCK'}</Badge>
+                        <Badge tone={/mat/i.test(blk.name)?'green':/weight/i.test(blk.name)?'blue':'gray'}>
+                          {/mat/i.test(blk.name)?'MAT':/weight/i.test(blk.name)?'WEIGHTS':'BLOCK'}
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-500">Rounds</span>
-                        <input type="number" min="1" className="w-20 text-right bg-gray-50 px-2 py-1 rounded-lg border" value={blk.rounds}
-                          onChange={e=>{
+                        <input type="number" min={1} className="w-20 text-right bg-gray-50 px-2 py-1 rounded-lg border"
+                          value={blk.rounds}
+                          onChange={(e)=>{
                             const nextLib = [...library];
                             nextLib[currentIndex] = { ...nextLib[currentIndex] };
                             nextLib[currentIndex].categories = [...nextLib[currentIndex].categories];
@@ -188,7 +196,7 @@
                       </div>
                     </div>
                     <ul className="mt-2 space-y-1">
-                      {(blk.exercises||[]).map((ex,ei)=>(
+                      {(blk.exercises||[]).map((ex, ei) => (
                         <li key={ei} className="text-sm text-gray-700">
                           <span className="text-gray-500 mr-2">{ei+1}.</span>
                           {ex.description} — {ex.duration} {ex.unit}
@@ -200,17 +208,22 @@
               </div>
             )}
 
-            {mode==="RUN" && current && (
+            {mode === 'RUN' && current && (
               <Card><CardBody>
                 <div className="text-sm text-gray-500">
                   {currentBlock.name} • Round {cur.ri}/{currentBlock.rounds} • Block {cur.bi+1}/{blocks.length}
-                  <span className="ml-2"><Badge tone={isMat?'green':isWeights?'blue':'gray'}>{isMat?'MAT':isWeights?'WEIGHTS':'BLOCK'}</Badge></span>
+                  <span className="ml-2">
+                    <Badge tone={isMat? 'green' : isWeights? 'blue' : 'gray'}>
+                      {isMat? 'MAT' : isWeights? 'WEIGHTS' : 'BLOCK'}
+                    </Badge>
+                  </span>
                 </div>
                 <div className="text-4xl sm:text-5xl font-extrabold mt-2 break-words">{current.description}</div>
                 {current.instructions && <div className="text-base text-gray-700 max-w-[30rem] mt-2">{current.instructions}</div>}
 
-                {current.unit==='seconds' ? (
-                  <BigTimer key={seed} ms={toMs(current.duration)} running={running} onToggle={()=>setRunning(r=>!r)} onComplete={()=>setTimerDone(true)} />
+                {current.unit === 'seconds' ? (
+                  <BigTimer key={seed} ms={toMs(current.duration)} running={running}
+                    onToggle={()=>setRunning(r=>!r)} onComplete={()=>setTimerDone(true)} />
                 ) : (
                   <div className="mt-4">
                     <div className="text-3xl font-bold">{current.duration} reps</div>
@@ -221,7 +234,7 @@
                 {timerDone && <div className="text-green-600 mt-2">Timer done — tap Next</div>}
                 <div className="flex gap-2 mt-6">
                   <GhostButton onClick={prev}>◀ Prev</GhostButton>
-                  <GhostButton onClick={()=>setMode("PLAN")}>Exit</GhostButton>
+                  <GhostButton onClick={()=> setMode('PLAN')}>Exit</GhostButton>
                   <Button onClick={next}>Next ✓</Button>
                 </div>
               </CardBody></Card>
@@ -243,7 +256,7 @@
       );
     }
 
-    // Console sanity checks
+    // Console sanity checks (lightweight)
     ;(function(){
       try {
         const core = INITIAL_LIBRARY[0].categories[1];
