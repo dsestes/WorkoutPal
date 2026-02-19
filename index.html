@@ -689,7 +689,7 @@ Rules:
             )}
           </header>
 
-          <main style={{ maxWidth:'680px', margin:'0 auto', padding:'20px 16px 60px' }}>
+          <main style={{ maxWidth:'680px', margin:'0 auto', padding:'20px 16px', paddingBottom: mode==='RUN' ? '90px' : '60px' }}>
 
             {/* ── PLAN ── */}
             {mode==='PLAN' && !editMode && (
@@ -795,7 +795,6 @@ Rules:
 
                 {current.unit==='seconds' ? (
                   (() => {
-                    // Detect alternating exercises by name
                     const isAlternating = !!current.per_side;
                     return (
                       <div>
@@ -826,33 +825,39 @@ Rules:
                     {!!current.per_side && (
                       <div style={{ fontSize:'12px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:700, marginTop:'4px' }}>per side</div>
                     )}
-                    <button className="btn-ink" style={{ marginTop:'20px', fontSize:'14px', padding:'14px 28px' }} onClick={next}>DONE ✓</button>
                   </div>
                 )}
-
-                {timerDone && (
-                  <div style={{ marginTop:'14px', color:'var(--ink)', fontWeight:800, fontSize:'12px', letterSpacing:'0.1em', textTransform:'uppercase' }}>✓ DONE — TAP NEXT</div>
-                )}
-
-                <div style={{ display:'flex', gap:'8px', marginTop:'28px' }}>
-                  <button className="btn-ghost" onClick={prev} disabled={idx===0} style={{ fontSize:'12px' }}>◀ PREV</button>
-                  <button className="btn-ghost" onClick={()=>setMode('PLAN')} style={{ fontSize:'12px' }}>EXIT</button>
-                  <button className="btn-ink"  style={{ marginLeft:'auto', fontSize:'13px', padding:'10px 24px' }} onClick={next}>
-                    {idx+1>=schedule.length ? 'FINISH 🎉' : 'NEXT →'}
-                  </button>
-                </div>
               </div>
             )}
 
             {/* ── COMPLETE ── */}
             {mode==='RUN' && schedule.length>0 && !cur && (
-              <div className="card fade-in" style={{ padding:'48px 24px', textAlign:'center' }}>
+              <div className="card fade-in" style={{ padding:'48px 24px', textAlign:'center', paddingBottom:'100px' }}>
                 <div className="font-display" style={{ fontSize:'72px', fontWeight:900, textTransform:'uppercase', color:'var(--ink)', lineHeight:1 }}>Done.</div>
                 <div style={{ color:'var(--muted)', marginTop:'8px', fontSize:'12px', textTransform:'uppercase', letterSpacing:'0.1em' }}>Workout complete</div>
                 <button className="btn-ink" style={{ marginTop:'28px' }} onClick={()=>setMode('PLAN')}>BACK TO PLAN</button>
               </div>
             )}
           </main>
+
+          {/* ── PINNED NAV FOOTER (run mode only) ── */}
+          {mode==='RUN' && cur && (
+            <div style={{
+              position:'fixed', bottom:0, left:0, right:0, zIndex:20,
+              background:'rgba(240,240,240,0.97)', backdropFilter:'blur(12px)',
+              borderTop:'1.5px solid var(--border2)',
+              padding:'12px 16px',
+              paddingBottom:'calc(12px + env(safe-area-inset-bottom))',
+            }}>
+              <div style={{ maxWidth:'680px', margin:'0 auto', display:'flex', gap:'8px' }}>
+                <button className="btn-ghost" onClick={prev} disabled={idx===0} style={{ fontSize:'12px' }}>◀ PREV</button>
+                <button className="btn-ghost" onClick={()=>setMode('PLAN')} style={{ fontSize:'12px' }}>EXIT</button>
+                <button className="btn-ink" style={{ marginLeft:'auto', fontSize:'13px', padding:'10px 24px' }} onClick={next}>
+                  {idx+1>=schedule.length ? 'FINISH 🎉' : 'NEXT →'}
+                </button>
+              </div>
+            </div>
+          )}
 
           {showImport && <ImportModal onClose={()=>setShowImport(false)} onImport={handleImport} />}
         </div>
