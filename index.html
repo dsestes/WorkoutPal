@@ -786,13 +786,6 @@ Rules:
                   {current.description}
                 </h2>
 
-                {current.instructions && (
-                  <div className="cue-card" style={{ marginBottom:'12px' }}>
-                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.12em', textTransform:'uppercase', color:'#5a7a00', marginBottom:'6px' }}>Coaching cues</div>
-                    <div style={{ fontSize:'14px', lineHeight:'1.65', color:'var(--ink)' }}>{current.instructions}</div>
-                  </div>
-                )}
-
                 {current.unit==='seconds' ? (
                   (() => {
                     const isAlternating = !!current.per_side;
@@ -825,6 +818,13 @@ Rules:
                     {!!current.per_side && (
                       <div style={{ fontSize:'12px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:700, marginTop:'4px' }}>per side</div>
                     )}
+                  </div>
+                )}
+
+                {current.instructions && (
+                  <div className="cue-card" style={{ marginTop:'16px' }}>
+                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.12em', textTransform:'uppercase', color:'#5a7a00', marginBottom:'6px' }}>Coaching cues</div>
+                    <div style={{ fontSize:'14px', lineHeight:'1.65', color:'var(--ink)' }}>{current.instructions}</div>
                   </div>
                 )}
               </div>
