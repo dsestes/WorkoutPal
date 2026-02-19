@@ -248,7 +248,8 @@
             else if (ex.reps&&!ex.duration) unit='reps';
             else unit='seconds';
             const instructions = ex.instructions||ex.cues||ex.coaching||ex.notes||ex.form_cues||'';
-            fixedEx.push({ description:desc, duration:dur, unit, instructions });
+            const per_side = !!(ex.per_side||ex.perSide||ex.alternating||ex.unilateral||false);
+            fixedEx.push({ description:desc, duration:dur, unit, per_side, instructions });
           });
           if (!fixedEx.length) { catErr.push(`"${bname}": no exercises`); return; }
           fixedCats.push({ name:bname, rounds:Math.max(1,rounds), exercises:fixedEx });
@@ -272,15 +273,17 @@ Use exactly this structure:
       "rounds": 3,
       "exercises": [
         {
-          "description": "Exercise Name",
+          "description": "Bilateral Exercise (e.g. Plank)",
           "duration": 45,
           "unit": "seconds",
-          "instructions": "Key coaching cues — what to focus on, what to avoid, form reminders."
+          "per_side": false,
+          "instructions": "Key coaching cues here."
         },
         {
-          "description": "Another Exercise",
+          "description": "Unilateral Exercise (e.g. Lunge)",
           "duration": 12,
           "unit": "reps",
+          "per_side": true,
           "instructions": "Coaching cues here."
         }
       ]
@@ -292,6 +295,7 @@ Rules:
 - "unit" must be exactly "seconds" or "reps" (no other values)
 - "duration" must be a number (not a string like "30s")
 - "rounds" must be a number (how many times to repeat the block)
+- "per_side" must be true or false. Set true for any unilateral exercise that works one side at a time and must be repeated on the other side — e.g. lunges, split squats, step ups, single-leg deadlifts, clamshells, side planks, hip flexor stretches, dead bugs, bird dogs, single-arm exercises, etc. Set false for bilateral exercises like squats, push-ups, planks, bicep curls (both arms), etc.
 - "instructions" should include practical form cues: what to focus on, common mistakes to avoid, what the movement should feel like
 - Include a warm-up block (rounds: 1), 1-3 main blocks (rounds: 2-4), and a cooldown block (rounds: 1)
 - Return only the JSON - no markdown, no code fences, no explanation`;
@@ -318,7 +322,7 @@ Rules:
           ]},
           { name: "Cooldown", rounds: 1, exercises: [
             { description: "Seated Forward Fold", duration: 45, unit: "seconds", instructions: "Hinge at hips, not the waist. Soft knees. Let neck and jaw completely relax." },
-            { description: "Cross-Body Shoulder", duration: 30, unit: "seconds", instructions: "Gently pull arm across chest. Keep shoulder DOWN — don't let it shrug." },
+            { description: "Cross-Body Shoulder", per_side: true,, duration: 30, unit: "seconds", instructions: "Gently pull arm across chest. Keep shoulder DOWN — don't let it shrug." },
             { description: "Child's Pose", duration: 45, unit: "seconds", instructions: "Sit back toward heels. Reach arms long. Try to get longer with each exhale." }
           ]}
         ]
@@ -328,24 +332,24 @@ Rules:
         categories: [
           { name: "Warm-Up", rounds: 1, exercises: [
             { description: "Bodyweight Squats", duration: 12, unit: "reps", instructions: "Feet shoulder-width, toes slightly out. Sit BACK — weight on mid-foot and heels. Chest tall." },
-            { description: "Hip Circles", duration: 30, unit: "seconds", instructions: "Hands on hips. Draw big deliberate circles. Both directions equally." },
-            { description: "Leg Swings", duration: 10, unit: "reps", instructions: "Front to back. Brace core. Start small, build range gradually." }
+            { description: "Hip Circles", per_side: false,, duration: 30, unit: "seconds", instructions: "Hands on hips. Draw big deliberate circles. Both directions equally." },
+            { description: "Leg Swings", per_side: false,, duration: 10, unit: "reps", instructions: "Front to back. Brace core. Start small, build range gradually." }
           ]},
           { name: "Glute Activation (Mat)", rounds: 3, exercises: [
             { description: "Glute Bridge", duration: 15, unit: "reps", instructions: "Drive through HEELS, not toes. Pause and SQUEEZE at the top. Don't let the lower back take over." },
-            { description: "Clamshells", duration: 15, unit: "reps", instructions: "Band above knees. Stack your hips — don't roll back. Feel this in the glute, not the hip flexor." },
-            { description: "Side Plank Hip Lifts", duration: 12, unit: "reps", instructions: "Elbow under shoulder. Lift straight up — don't twist. Keep hips square." }
+            { description: "Clamshells", per_side: true,, duration: 15, unit: "reps", instructions: "Band above knees. Stack your hips — don't roll back. Feel this in the glute, not the hip flexor." },
+            { description: "Side Plank Hip Lifts", per_side: true,, duration: 12, unit: "reps", instructions: "Elbow under shoulder. Lift straight up — don't twist. Keep hips square." }
           ]},
           { name: "Leg Strength (Weights)", rounds: 3, exercises: [
-            { description: "Bulgarian Split Squat", duration: 12, unit: "reps", instructions: "Long stance — front shin vertical at bottom. Torso tall. Drive through front heel." },
-            { description: "Step Ups", duration: 12, unit: "reps", instructions: "Full foot on bench. Drive through the HEEL of the raised foot. Control the step down." },
-            { description: "Romanian Deadlift", duration: 12, unit: "reps", instructions: "FLAT BACK — this is the whole exercise. Hinge at hips. Weights stay close to legs." },
+            { description: "Bulgarian Split Squat", per_side: true,, duration: 12, unit: "reps", instructions: "Long stance — front shin vertical at bottom. Torso tall. Drive through front heel." },
+            { description: "Step Ups", per_side: true,, duration: 12, unit: "reps", instructions: "Full foot on bench. Drive through the HEEL of the raised foot. Control the step down." },
+            { description: "Romanian Deadlift", per_side: false,, duration: 12, unit: "reps", instructions: "FLAT BACK — this is the whole exercise. Hinge at hips. Weights stay close to legs." },
             { description: "Squat Jumps", duration: 15, unit: "reps", instructions: "Land SOFT — think quiet feet. Chest stays tall. Explosive power AND controlled landing." }
           ]},
           { name: "Cooldown", rounds: 1, exercises: [
-            { description: "Standing Quad", duration: 30, unit: "seconds", instructions: "Knees together. Slight posterior tilt to deepen stretch. Stand tall." },
-            { description: "Figure-4 Stretch", duration: 30, unit: "seconds", instructions: "Cross ankle over opposite knee. Sit back. Keep spine long — don't round." },
-            { description: "Seated Hamstring", duration: 45, unit: "seconds", instructions: "Hinge FORWARD from the hip. Don't round the back to reach. Relax the hamstring with each exhale." }
+            { description: "Standing Quad", per_side: true,, duration: 30, unit: "seconds", instructions: "Knees together. Slight posterior tilt to deepen stretch. Stand tall." },
+            { description: "Figure-4 Stretch", per_side: true,, duration: 30, unit: "seconds", instructions: "Cross ankle over opposite knee. Sit back. Keep spine long — don't round." },
+            { description: "Seated Hamstring", per_side: true,, duration: 45, unit: "seconds", instructions: "Hinge FORWARD from the hip. Don't round the back to reach. Relax the hamstring with each exhale." }
           ]}
         ]
       }
@@ -378,6 +382,11 @@ Rules:
               <option value="reps">reps</option>
             </select>
           </div>
+          <label style={{ display:'flex', alignItems:'center', gap:'8px', cursor:'pointer', userSelect:'none' }}>
+            <input type="checkbox" checked={!!ex.per_side} onChange={e => onChange({ ...ex, per_side:e.target.checked })}
+              style={{ width:'16px', height:'16px', accentColor:'var(--ink)', cursor:'pointer' }} />
+            <span style={{ fontSize:'12px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', color:'var(--muted)' }}>Per side (unilateral)</span>
+          </label>
           <textarea value={ex.instructions||''} rows={2}
             placeholder="Coaching cues (flat back, drive through heels, shoulders down...)"
             onChange={e => onChange({ ...ex, instructions:e.target.value })}
@@ -390,7 +399,7 @@ Rules:
     function BlockEditor({ blk, onChange, onDelete }) {
       const upEx = (ei,u) => { const e=[...blk.exercises]; e[ei]=u; onChange({...blk,exercises:e}); };
       const delEx = (ei) => onChange({ ...blk, exercises:blk.exercises.filter((_,i)=>i!==ei) });
-      const addEx = () => onChange({ ...blk, exercises:[...blk.exercises,{description:'',duration:30,unit:'seconds',instructions:''}] });
+      const addEx = () => onChange({ ...blk, exercises:[...blk.exercises,{description:'',duration:30,unit:'seconds',per_side:false,instructions:''}] });
       return (
         <div style={{ background:'var(--surface)', border:'1px solid var(--border2)', borderRadius:'4px', padding:'16px', marginBottom:'12px' }}>
           <div style={{ display:'flex', gap:'10px', alignItems:'center', marginBottom:'12px', flexWrap:'wrap' }}>
@@ -787,7 +796,7 @@ Rules:
                 {current.unit==='seconds' ? (
                   (() => {
                     // Detect alternating exercises by name
-                    const isAlternating = /lunge|dead.?bug|hip.?flexor|hip.?circle|leg.?swing|clamshell|side.?plank|split.?squat|step.?up|single|lateral|windmill|bird.?dog|skater/i.test(current.description);
+                    const isAlternating = !!current.per_side;
                     return (
                       <div>
                         <BigTimer key={seed} ms={toMs(current.duration)} running={running}
@@ -814,7 +823,7 @@ Rules:
                       <span className="font-display" style={{ fontSize:'96px', fontWeight:900, lineHeight:1, color:'var(--ink)', letterSpacing:'-0.02em' }}>{current.duration}</span>
                       <span className="font-display" style={{ fontSize:'28px', fontWeight:700, color:'var(--muted)', textTransform:'uppercase' }}>reps</span>
                     </div>
-                    {/lunge|dead.?bug|hip.?flexor|clamshell|side.?plank|split.?squat|step.?up|single|lateral|windmill|bird.?dog|skater/i.test(current.description) && (
+                    {!!current.per_side && (
                       <div style={{ fontSize:'12px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:700, marginTop:'4px' }}>per side</div>
                     )}
                     <button className="btn-ink" style={{ marginTop:'20px', fontSize:'14px', padding:'14px 28px' }} onClick={next}>DONE ✓</button>
