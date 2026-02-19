@@ -12,96 +12,103 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     :root {
-      --bg: #0a0a0a;
-      --surface: #141414;
-      --surface2: #1e1e1e;
-      --surface3: #282828;
-      --volt: #c8f135;
-      --red: #ff3b2f;
-      --white: #f5f5f5;
-      --muted: #6e6e6e;
-      --border: #2a2a2a;
-      --border2: #333;
-      --green: #22c55e;
-      --rest-color: #a78bfa;
+      --bg: #f0f0f0;
+      --surface: #ffffff;
+      --surface2: #f5f5f5;
+      --surface3: #e8e8e8;
+      --ink: #0a0a0a;
+      --volt: #9fcc00;
+      --volt-bg: #eefacc;
+      --red: #d93025;
+      --muted: #757575;
+      --border: #e0e0e0;
+      --border2: #cacaca;
+      --green: #1a7a38;
+      --green-bg: #e6f4ea;
+      --blue: #1a56a0;
+      --blue-bg: #e8f0fe;
+      --rest-color: #6d40c4;
+      --rest-bg: #ede7f6;
     }
     *, *::before, *::after { box-sizing: border-box; }
     html, body, #root { height: 100%; margin: 0; padding: 0; }
-    body { background: var(--bg); font-family: 'Barlow', sans-serif; color: var(--white); -webkit-font-smoothing: antialiased; }
+    body { background: var(--bg); font-family: 'Barlow', sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
     .font-display { font-family: 'Barlow Condensed', sans-serif; }
     .font-mono { font-family: 'DM Mono', monospace; }
 
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
 
-    .btn-volt {
-      background: var(--volt); color: #0a0a0a; border: none; border-radius: 2px;
+    .btn-ink {
+      background: var(--ink); color: #fff; border: none; border-radius: 2px;
       padding: 12px 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
       font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
       transition: opacity 0.12s, transform 0.08s;
     }
-    .btn-volt:hover { opacity: 0.9; }
-    .btn-volt:active { transform: scale(0.97); opacity: 0.8; }
+    .btn-ink:hover { opacity: 0.82; }
+    .btn-ink:active { transform: scale(0.97); }
+    .btn-ink:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* START button — volt background, black text, unmissable */
+    .btn-volt {
+      background: var(--volt); color: var(--ink); border: none; border-radius: 2px;
+      padding: 12px 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+      font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: opacity 0.12s, transform 0.08s;
+    }
+    .btn-volt:hover { opacity: 0.88; }
+    .btn-volt:active { transform: scale(0.97); }
     .btn-volt:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    .btn-white {
-      background: var(--white); color: #0a0a0a; border: none; border-radius: 2px;
-      padding: 12px 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-      font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
-      transition: opacity 0.12s, transform 0.08s;
-    }
-    .btn-white:hover { opacity: 0.85; }
-    .btn-white:active { transform: scale(0.97); }
-
     .btn-ghost {
-      background: transparent; color: var(--white); border: 1px solid var(--border2); border-radius: 2px;
+      background: var(--surface); color: var(--ink); border: 1.5px solid var(--border2); border-radius: 2px;
       padding: 10px 18px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
       transition: background 0.12s, border-color 0.12s;
     }
-    .btn-ghost:hover { background: var(--surface2); border-color: var(--muted); }
-    .btn-ghost:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-ghost:hover { background: var(--surface2); border-color: #aaa; }
+    .btn-ghost:disabled { opacity: 0.35; cursor: not-allowed; }
 
     .btn-danger {
-      background: transparent; color: var(--red); border: 1px solid #4a1010; border-radius: 2px;
+      background: transparent; color: var(--red); border: 1.5px solid #f5c6c3; border-radius: 2px;
       padding: 8px 14px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
       transition: background 0.12s;
     }
-    .btn-danger:hover { background: #1a0808; }
+    .btn-danger:hover { background: #fdf0ef; }
 
     .badge {
       display: inline-flex; align-items: center; border-radius: 2px; padding: 3px 8px;
-      font-size: 10px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid;
+      font-size: 10px; font-weight: 800; font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.1em; text-transform: uppercase; border: 1.5px solid;
     }
-    .badge-gray   { background: #1a1a1a; color: var(--muted);       border-color: var(--border2); }
-    .badge-green  { background: #0d2010; color: var(--green);        border-color: #1a4a20; }
-    .badge-blue   { background: #0d1a30; color: #60a5fa;             border-color: #1a3060; }
-    .badge-purple { background: #1a1030; color: var(--rest-color);   border-color: #2a2050; }
+    .badge-gray   { background: var(--surface2); color: var(--muted);      border-color: var(--border2); }
+    .badge-green  { background: var(--green-bg); color: var(--green);       border-color: #a8d5b5; }
+    .badge-blue   { background: var(--blue-bg);  color: var(--blue);        border-color: #a8c4f0; }
+    .badge-purple { background: var(--rest-bg);  color: var(--rest-color);  border-color: #c5b3e6; }
 
     input[type="text"], input[type="number"], select, textarea {
-      font-family: 'Barlow', sans-serif; background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 2px; padding: 8px 12px; font-size: 14px; color: var(--white);
+      font-family: 'Barlow', sans-serif; background: var(--surface); border: 1.5px solid var(--border2);
+      border-radius: 2px; padding: 8px 12px; font-size: 14px; color: var(--ink);
       transition: border-color 0.15s; outline: none;
     }
-    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus { border-color: var(--volt); }
-    select option { background: var(--surface2); color: var(--white); }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus { border-color: var(--ink); }
+    select option { background: var(--surface); color: var(--ink); }
     textarea { resize: vertical; }
 
     .timer-ring { transform: rotate(-90deg); }
     .timer-ring-bg { stroke: var(--surface3); stroke-width: 10; fill: none; }
-    .timer-ring-progress { stroke: var(--volt); stroke-width: 10; fill: none; stroke-linecap: butt; transition: stroke-dashoffset 0.1s linear; }
+    .timer-ring-progress { stroke: var(--ink); stroke-width: 10; fill: none; stroke-linecap: butt; transition: stroke-dashoffset 0.1s linear; }
     .timer-ring-rest .timer-ring-progress { stroke: var(--rest-color); }
     .timer-ring-done .timer-ring-progress { stroke: var(--red); }
 
-    @keyframes flashAnim { 0% { opacity:0; } 15% { opacity:0.85; } 100% { opacity:0; } }
+    @keyframes flashAnim { 0% { opacity:0; } 12% { opacity:0.9; } 100% { opacity:0; } }
     .flash-overlay {
       position: fixed; inset: 0; z-index: 9000; pointer-events: none;
-      background: var(--volt); animation: flashAnim 0.55s ease-out forwards;
+      background: var(--volt); animation: flashAnim 0.6s ease-out forwards;
     }
 
-    .progress-bar { height: 3px; background: var(--surface3); overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--volt); transition: width 0.4s ease; }
+    .progress-bar { height: 4px; background: var(--surface3); overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--ink); transition: width 0.4s ease; }
 
     @keyframes fadeIn  { from { opacity:0; transform: translateY(6px);  } to { opacity:1; transform: translateY(0); } }
     @keyframes slideUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
@@ -111,30 +118,30 @@
     .scale-in { animation: scaleIn 0.2s  ease both; }
 
     .cue-card {
-      background: #141a00; border: 1px solid #2a3800;
-      border-left: 3px solid var(--volt); border-radius: 2px; padding: 12px 16px;
+      background: var(--volt-bg); border: 1.5px solid #cce870;
+      border-left: 4px solid var(--volt); border-radius: 2px; padding: 12px 16px;
     }
 
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
       display: flex; align-items: center; justify-content: center;
       padding: 16px; z-index: 100; backdrop-filter: blur(6px);
     }
     .modal {
-      background: var(--surface); border: 1px solid var(--border2); border-radius: 4px;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.6); width: 100%; max-width: 580px;
+      background: var(--surface); border: 1.5px solid var(--border2); border-radius: 4px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18); width: 100%; max-width: 580px;
       max-height: 90vh; overflow-y: auto;
     }
 
     .app-header {
       position: sticky; top: 0; z-index: 10;
-      background: rgba(10,10,10,0.96); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      background: rgba(240,240,240,0.95); backdrop-filter: blur(16px);
+      border-bottom: 1.5px solid var(--border2);
     }
 
     .ex-row {
       display: grid; gap: 8px; padding: 12px; background: var(--surface2);
-      border: 1px solid var(--border2); border-radius: 2px; margin-bottom: 6px;
+      border: 1.5px solid var(--border); border-radius: 2px; margin-bottom: 6px;
     }
 
     ::-webkit-scrollbar { width: 4px; }
@@ -143,13 +150,13 @@
 
     .workout-select {
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e6e' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 10px center;
       padding-right: 30px; font-weight: 700; font-size: 15px; letter-spacing: 0.01em;
     }
 
-    .block-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-    .block-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--surface2); }
+    .block-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .block-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); background: var(--surface2); }
   </style>
 </head>
 <body>
@@ -469,19 +476,19 @@ Rules:
             </div>
             <div style={{ padding:'20px 24px' }}>
               {/* Step 1 */}
-              <div style={{ background:'#141a00', border:'1px solid #2a3800', borderRadius:'4px', padding:'16px', marginBottom:'20px' }}>
+              <div style={{ background:'var(--volt-bg)', border:'1.5px solid #cce870', borderRadius:'4px', padding:'16px', marginBottom:'20px' }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:'12px' }}>
                   <div>
-                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--volt)', marginBottom:'4px' }}>Step 1</div>
-                    <div style={{ fontSize:'14px', fontWeight:600, marginBottom:'4px' }}>Ask an AI to generate a workout</div>
+                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', color:'#5a7a00', marginBottom:'4px' }}>Step 1</div>
+                    <div style={{ fontSize:'14px', fontWeight:600, marginBottom:'4px', color:'var(--ink)' }}>Ask an AI to generate a workout</div>
                     <div style={{ fontSize:'12px', color:'var(--muted)', lineHeight:1.5 }}>
                       Copy the prompt, paste into ChatGPT or Claude, then add your request —{' '}
-                      <em style={{ color:'var(--white)' }}>"30-min upper body, 3 rounds, dumbbells only"</em>
+                      <em style={{ color:'var(--ink)' }}>"30-min upper body, 3 rounds, dumbbells only"</em>
                     </div>
                   </div>
                   <button onClick={copyPrompt} style={{
-                    flexShrink:0, background:copied?'#0d2010':'var(--volt)',
-                    color:copied?'var(--green)':'#0a0a0a', border:copied?'1px solid #1a4a20':'none',
+                    flexShrink:0, background:copied?'var(--green-bg)':'var(--ink)',
+                    color:copied?'var(--green)':'#fff', border:copied?'1.5px solid #a8d5b5':'none',
                     borderRadius:'2px', padding:'10px 16px', fontSize:'12px', fontWeight:800,
                     cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.08em',
                     textTransform:'uppercase', transition:'all 0.2s', whiteSpace:'nowrap'
@@ -491,34 +498,34 @@ Rules:
                 </div>
                 <div className="font-mono" style={{
                   marginTop:'12px', fontSize:'11px', color:'var(--muted)',
-                  background:'var(--bg)', border:'1px solid var(--border)', borderRadius:'2px',
+                  background:'var(--surface)', border:'1px solid var(--border2)', borderRadius:'2px',
                   padding:'10px', maxHeight:'70px', overflow:'hidden', position:'relative',
                   lineHeight:1.5, userSelect:'none'
                 }}>
                   {AI_PROMPT.slice(0,180)}…
-                  <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'28px', background:'linear-gradient(transparent, var(--bg))' }} />
+                  <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'28px', background:'linear-gradient(transparent, var(--surface))' }} />
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--volt)', marginBottom:'8px' }}>Step 2 — Paste JSON</div>
+              <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--ink)', marginBottom:'8px' }}>Step 2 — Paste JSON</div>
               <textarea className="font-mono"
-                style={{ width:'100%', height:'160px', fontSize:'12px', padding:'12px', background:'var(--bg)', border:'1px solid var(--border2)' }}
+                style={{ width:'100%', height:'160px', fontSize:'12px', padding:'12px' }}
                 placeholder={'{\n  "title": "My Workout",\n  "categories": [...]\n}'}
                 value={text} onChange={e=>{ setText(e.target.value); setResult(null); }} />
 
               {result && (
                 <div style={{
                   marginTop:'12px', padding:'12px', borderRadius:'2px', fontSize:'13px',
-                  background: result.ok ? '#0d2010' : '#1a0808',
-                  border: `1px solid ${result.ok ? '#1a4a20' : '#4a1010'}`,
+                  background: result.ok ? 'var(--green-bg)' : '#fdf0ef',
+                  border: `1.5px solid ${result.ok ? '#a8d5b5' : '#f5c6c3'}`,
                   color: result.ok ? 'var(--green)' : 'var(--red)'
                 }}>
                   {result.ok ? (
                     <>
                       <div style={{ fontWeight:700, marginBottom:'6px' }}>✓ READY — {result.workouts.length} workout{result.workouts.length>1?'s':''}</div>
-                      {result.warnings.length>0 && <div style={{ color:'#fbbf24', marginBottom:'4px' }}>⚠ {result.warnings.join('; ')}</div>}
-                      <ul style={{ margin:0, paddingLeft:'16px', color:'var(--white)', fontSize:'13px' }}>
+                      {result.warnings.length>0 && <div style={{ color:'#b45309', marginBottom:'4px' }}>⚠ {result.warnings.join('; ')}</div>}
+                      <ul style={{ margin:0, paddingLeft:'16px', color:'var(--ink)', fontSize:'13px' }}>
                         {result.workouts.map((w,i)=><li key={i}>{w.title} — {w.categories.length} blocks, {w.categories.reduce((s,c)=>s+c.exercises.length,0)} exercises</li>)}
                       </ul>
                     </>
@@ -533,8 +540,8 @@ Rules:
 
               <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', marginTop:'16px' }}>
                 <button className="btn-ghost" onClick={onClose}>CANCEL</button>
-                {!result?.ok && <button className="btn-white" onClick={tryFix} disabled={!text.trim()}>VALIDATE & FIX</button>}
-                {result?.ok  && <button className="btn-volt"  onClick={doImport}>IMPORT ✓</button>}
+                {!result?.ok && <button className="btn-ghost" style={{ background:'var(--ink)', color:'#fff', border:'none' }} onClick={tryFix} disabled={!text.trim()}>VALIDATE & FIX</button>}
+                {result?.ok  && <button className="btn-ink"  onClick={doImport}>IMPORT ✓</button>}
               </div>
             </div>
           </div>
@@ -566,14 +573,14 @@ Rules:
             <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
               <span className="font-display" style={{
                 fontSize: seconds>=100?'44px':'60px', fontWeight:900, lineHeight:1,
-                color: done ? 'var(--red)' : isRest ? 'var(--rest-color)' : 'var(--volt)'
+                color: done ? 'var(--red)' : isRest ? 'var(--rest-color)' : 'var(--ink)'
               }}>{seconds}</span>
               <span style={{ fontSize:'10px', color:'var(--muted)', marginTop:'3px', letterSpacing:'0.12em', textTransform:'uppercase', fontWeight:700 }}>
                 {isRest ? 'rest' : 'sec'}
               </span>
             </div>
           </div>
-          <button className={running ? 'btn-ghost' : (isRest ? 'btn-ghost' : 'btn-volt')}
+          <button className={running ? 'btn-ghost' : (isRest ? 'btn-ghost' : 'btn-ink')}
             onClick={onToggle} style={{ minWidth:'120px', fontSize:'13px' }}>
             {running ? '⏸ PAUSE' : '▶ START'}
           </button>
@@ -668,7 +675,7 @@ Rules:
                 {mode==='PLAN' && !editMode && (
                   <select className="workout-select" value={safeIdx}
                     onChange={e=>setCurrentIndex(Number(e.target.value))}
-                    style={{ flex:1, minWidth:0, background:'var(--surface)', color:'var(--white)' }}>
+                    style={{ flex:1, minWidth:0, background:'var(--surface)', color:'var(--ink)' }}>
                     {library.map((w,i)=><option key={i} value={i}>{w.title}</option>)}
                   </select>
                 )}
@@ -695,7 +702,7 @@ Rules:
               {editMode && (
                 <div style={{ display:'flex', gap:'8px' }}>
                   <button className="btn-ghost" style={{ flex:1 }} onClick={cancelEdit}>CANCEL</button>
-                  <button className="btn-volt"  style={{ flex:1 }} onClick={saveEdit}>SAVE</button>
+                  <button className="btn-ink"  style={{ flex:1 }} onClick={saveEdit}>SAVE</button>
                 </div>
               )}
             </div>
@@ -706,7 +713,7 @@ Rules:
 
             {banner && (
               <div style={{ maxWidth:'680px', margin:'0 auto', padding:'0 16px 10px' }}>
-                <div style={{ fontSize:'12px', padding:'8px 12px', borderRadius:'2px', background:'#141a00', border:'1px solid #2a3800', color:'var(--volt)', letterSpacing:'0.04em' }}>{banner}</div>
+                <div style={{ fontSize:'12px', padding:'8px 12px', borderRadius:'2px', background:'var(--volt-bg)', border:'1.5px solid #cce870', color:'#5a7a00', letterSpacing:'0.04em' }}>{banner}</div>
               </div>
             )}
           </header>
@@ -741,7 +748,7 @@ Rules:
                             <span className="font-display" style={{ fontSize:'18px', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.04em' }}>{blk.name}</span>
                             <span className={`badge ${isMat?'badge-green':isW?'badge-blue':'badge-gray'}`}>{isMat?'MAT':isW?'WEIGHTS':'BLOCK'}</span>
                           </div>
-                          <span style={{ fontSize:'13px', color:'var(--volt)', fontWeight:800, fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.06em' }}>{blk.rounds}×</span>
+                          <span style={{ fontSize:'13px', color:'var(--ink)', fontWeight:800, fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.06em' }}>{blk.rounds}×</span>
                         </div>
                         <div style={{ padding:'12px 16px' }}>
                           {(blk.exercises||[]).map((ex,ei)=>(
@@ -750,7 +757,7 @@ Rules:
                                 <span style={{ color:'var(--muted)', marginRight:'8px', fontSize:'12px', fontVariantNumeric:'tabular-nums' }}>{ei+1}</span>
                                 {ex.description}
                               </span>
-                              <span className="font-mono" style={{ fontSize:'12px', color:'var(--volt)', flexShrink:0, marginLeft:'12px' }}>
+                              <span className="font-mono" style={{ fontSize:'12px', color:'var(--ink)', flexShrink:0, marginLeft:'12px' }}>
                                 {ex.duration}{ex.unit==='seconds'?'s':' reps'}
                               </span>
                             </div>
@@ -810,8 +817,8 @@ Rules:
 
                 {current.instructions && (
                   <div className="cue-card" style={{ marginBottom:'12px' }}>
-                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--volt)', marginBottom:'6px' }}>Coaching cues</div>
-                    <div style={{ fontSize:'14px', lineHeight:'1.65', color:'#d4e8a0' }}>{current.instructions}</div>
+                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.12em', textTransform:'uppercase', color:'#5a7a00', marginBottom:'6px' }}>Coaching cues</div>
+                    <div style={{ fontSize:'14px', lineHeight:'1.65', color:'var(--ink)' }}>{current.instructions}</div>
                   </div>
                 )}
 
@@ -823,21 +830,21 @@ Rules:
                 ) : (
                   <div style={{ marginTop:'24px' }}>
                     <div style={{ display:'flex', alignItems:'baseline', gap:'10px' }}>
-                      <span className="font-display" style={{ fontSize:'96px', fontWeight:900, lineHeight:1, color:'var(--volt)', letterSpacing:'-0.02em' }}>{current.duration}</span>
+                      <span className="font-display" style={{ fontSize:'96px', fontWeight:900, lineHeight:1, color:'var(--ink)', letterSpacing:'-0.02em' }}>{current.duration}</span>
                       <span className="font-display" style={{ fontSize:'28px', fontWeight:700, color:'var(--muted)', textTransform:'uppercase' }}>reps</span>
                     </div>
-                    <button className="btn-volt" style={{ marginTop:'20px', fontSize:'14px', padding:'14px 28px' }} onClick={next}>DONE ✓</button>
+                    <button className="btn-ink" style={{ marginTop:'20px', fontSize:'14px', padding:'14px 28px' }} onClick={next}>DONE ✓</button>
                   </div>
                 )}
 
                 {timerDone && (
-                  <div style={{ marginTop:'14px', color:'var(--volt)', fontWeight:800, fontSize:'12px', letterSpacing:'0.1em', textTransform:'uppercase' }}>✓ DONE — TAP NEXT</div>
+                  <div style={{ marginTop:'14px', color:'var(--ink)', fontWeight:800, fontSize:'12px', letterSpacing:'0.1em', textTransform:'uppercase' }}>✓ DONE — TAP NEXT</div>
                 )}
 
                 <div style={{ display:'flex', gap:'8px', marginTop:'28px' }}>
                   <button className="btn-ghost" onClick={prev} disabled={idx===0} style={{ fontSize:'12px' }}>◀ PREV</button>
                   <button className="btn-ghost" onClick={()=>setMode('PLAN')} style={{ fontSize:'12px' }}>EXIT</button>
-                  <button className="btn-volt"  style={{ marginLeft:'auto', fontSize:'13px', padding:'10px 24px' }} onClick={next}>
+                  <button className="btn-ink"  style={{ marginLeft:'auto', fontSize:'13px', padding:'10px 24px' }} onClick={next}>
                     {idx+1>=schedule.length ? 'FINISH 🎉' : 'NEXT →'}
                   </button>
                 </div>
@@ -847,9 +854,9 @@ Rules:
             {/* ── COMPLETE ── */}
             {mode==='RUN' && schedule.length>0 && !cur && (
               <div className="card fade-in" style={{ padding:'48px 24px', textAlign:'center' }}>
-                <div className="font-display" style={{ fontSize:'72px', fontWeight:900, textTransform:'uppercase', color:'var(--volt)', lineHeight:1 }}>Done.</div>
+                <div className="font-display" style={{ fontSize:'72px', fontWeight:900, textTransform:'uppercase', color:'var(--ink)', lineHeight:1 }}>Done.</div>
                 <div style={{ color:'var(--muted)', marginTop:'8px', fontSize:'12px', textTransform:'uppercase', letterSpacing:'0.1em' }}>Workout complete</div>
-                <button className="btn-volt" style={{ marginTop:'28px' }} onClick={()=>setMode('PLAN')}>BACK TO PLAN</button>
+                <button className="btn-ink" style={{ marginTop:'28px' }} onClick={()=>setMode('PLAN')}>BACK TO PLAN</button>
               </div>
             )}
           </main>
