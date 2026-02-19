@@ -5,223 +5,151 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>WorkoutPal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     :root {
-      --ink: #0f0f0f;
-      --paper: #f5f2ec;
-      --card: #fffef9;
-      --accent: #e85d26;
-      --accent2: #2563eb;
-      --muted: #6b6560;
-      --border: #e2ddd6;
-      --green: #16a34a;
-      --rest: #7c3aed;
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1e1e1e;
+      --surface3: #282828;
+      --volt: #c8f135;
+      --red: #ff3b2f;
+      --white: #f5f5f5;
+      --muted: #6e6e6e;
+      --border: #2a2a2a;
+      --border2: #333;
+      --green: #22c55e;
+      --rest-color: #a78bfa;
     }
     *, *::before, *::after { box-sizing: border-box; }
     html, body, #root { height: 100%; margin: 0; padding: 0; }
-    body { background: var(--paper); font-family: 'DM Sans', sans-serif; color: var(--ink); }
-
-    .font-display { font-family: 'Syne', sans-serif; }
+    body { background: var(--bg); font-family: 'Barlow', sans-serif; color: var(--white); -webkit-font-smoothing: antialiased; }
+    .font-display { font-family: 'Barlow Condensed', sans-serif; }
     .font-mono { font-family: 'DM Mono', monospace; }
 
-    /* Grain texture overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
 
-    .card {
-      background: var(--card);
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(15,15,15,0.06);
+    .btn-volt {
+      background: var(--volt); color: #0a0a0a; border: none; border-radius: 2px;
+      padding: 12px 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: opacity 0.12s, transform 0.08s;
     }
+    .btn-volt:hover { opacity: 0.9; }
+    .btn-volt:active { transform: scale(0.97); opacity: 0.8; }
+    .btn-volt:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    .btn-primary {
-      background: var(--ink);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      letter-spacing: 0.01em;
+    .btn-white {
+      background: var(--white); color: #0a0a0a; border: none; border-radius: 2px;
+      padding: 12px 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: opacity 0.12s, transform 0.08s;
     }
-    .btn-primary:hover { opacity: 0.85; }
-    .btn-primary:active { transform: scale(0.97); }
-    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
-
-    .btn-accent {
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .btn-accent:hover { opacity: 0.88; }
-    .btn-accent:active { transform: scale(0.97); }
+    .btn-white:hover { opacity: 0.85; }
+    .btn-white:active { transform: scale(0.97); }
 
     .btn-ghost {
-      background: transparent;
-      color: var(--ink);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 16px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      background: transparent; color: var(--white); border: 1px solid var(--border2); border-radius: 2px;
+      padding: 10px 18px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
     }
-    .btn-ghost:hover { background: var(--border); }
+    .btn-ghost:hover { background: var(--surface2); border-color: var(--muted); }
+    .btn-ghost:disabled { opacity: 0.3; cursor: not-allowed; }
 
     .btn-danger {
-      background: transparent;
-      color: #dc2626;
-      border: 1.5px solid #fca5a5;
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: background 0.15s;
+      background: transparent; color: var(--red); border: 1px solid #4a1010; border-radius: 2px;
+      padding: 8px 14px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.12s;
     }
-    .btn-danger:hover { background: #fef2f2; }
+    .btn-danger:hover { background: #1a0808; }
 
     .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 99px;
-      padding: 2px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      border: 1.5px solid;
+      display: inline-flex; align-items: center; border-radius: 2px; padding: 3px 8px;
+      font-size: 10px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid;
     }
-    .badge-gray { background: #f3f0eb; color: var(--muted); border-color: var(--border); }
-    .badge-green { background: #f0fdf4; color: var(--green); border-color: #bbf7d0; }
-    .badge-blue { background: #eff6ff; color: var(--accent2); border-color: #bfdbfe; }
-    .badge-orange { background: #fff7ed; color: var(--accent); border-color: #fed7aa; }
-    .badge-purple { background: #f5f3ff; color: var(--rest); border-color: #ddd6fe; }
+    .badge-gray   { background: #1a1a1a; color: var(--muted);       border-color: var(--border2); }
+    .badge-green  { background: #0d2010; color: var(--green);        border-color: #1a4a20; }
+    .badge-blue   { background: #0d1a30; color: #60a5fa;             border-color: #1a3060; }
+    .badge-purple { background: #1a1030; color: var(--rest-color);   border-color: #2a2050; }
 
     input[type="text"], input[type="number"], select, textarea {
-      font-family: 'DM Sans', sans-serif;
-      background: white;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 10px;
-      font-size: 14px;
-      color: var(--ink);
-      transition: border-color 0.15s;
-      outline: none;
+      font-family: 'Barlow', sans-serif; background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 2px; padding: 8px 12px; font-size: 14px; color: var(--white);
+      transition: border-color 0.15s; outline: none;
     }
-    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
-      border-color: var(--ink);
-    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus { border-color: var(--volt); }
+    select option { background: var(--surface2); color: var(--white); }
+    textarea { resize: vertical; }
 
-    /* Timer ring */
     .timer-ring { transform: rotate(-90deg); }
-    .timer-ring-bg { stroke: var(--border); stroke-width: 8; fill: none; }
-    .timer-ring-progress { stroke: var(--accent); stroke-width: 8; fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
-    .timer-ring-rest .timer-ring-progress { stroke: var(--rest); }
+    .timer-ring-bg { stroke: var(--surface3); stroke-width: 10; fill: none; }
+    .timer-ring-progress { stroke: var(--volt); stroke-width: 10; fill: none; stroke-linecap: butt; transition: stroke-dashoffset 0.1s linear; }
+    .timer-ring-rest .timer-ring-progress { stroke: var(--rest-color); }
+    .timer-ring-done .timer-ring-progress { stroke: var(--red); }
 
-    /* Progress bar */
-    .progress-bar {
-      height: 4px;
-      background: var(--border);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 99px;
-      transition: width 0.3s ease;
+    @keyframes flashAnim { 0% { opacity:0; } 15% { opacity:0.85; } 100% { opacity:0; } }
+    .flash-overlay {
+      position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+      background: var(--volt); animation: flashAnim 0.55s ease-out forwards;
     }
 
-    /* Animations */
-    @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
-    @keyframes slideUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
-    .fade-in { animation: fadeIn 0.25s ease both; }
-    .slide-up { animation: slideUp 0.3s ease both; }
-    .pulse { animation: pulse 1.5s ease infinite; }
+    .progress-bar { height: 3px; background: var(--surface3); overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--volt); transition: width 0.4s ease; }
 
-    /* Coaching cues */
+    @keyframes fadeIn  { from { opacity:0; transform: translateY(6px);  } to { opacity:1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity:0; transform: scale(0.96);      } to { opacity:1; transform: scale(1);    } }
+    .fade-in  { animation: fadeIn  0.2s  ease both; }
+    .slide-up { animation: slideUp 0.25s ease both; }
+    .scale-in { animation: scaleIn 0.2s  ease both; }
+
     .cue-card {
-      background: linear-gradient(135deg, #fff7ed, #fffef9);
-      border: 1.5px solid #fed7aa;
-      border-radius: 12px;
-      padding: 12px 16px;
+      background: #141a00; border: 1px solid #2a3800;
+      border-left: 3px solid var(--volt); border-radius: 2px; padding: 12px 16px;
     }
 
-    /* Modal */
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(15,15,15,0.5);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
       display: flex; align-items: center; justify-content: center;
-      padding: 16px; z-index: 100; backdrop-filter: blur(4px);
+      padding: 16px; z-index: 100; backdrop-filter: blur(6px);
     }
     .modal {
-      background: var(--card);
-      border: 1.5px solid var(--border);
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(15,15,15,0.2);
-      width: 100%; max-width: 580px;
-      max-height: 90vh;
-      overflow-y: auto;
+      background: var(--surface); border: 1px solid var(--border2); border-radius: 4px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6); width: 100%; max-width: 580px;
+      max-height: 90vh; overflow-y: auto;
     }
 
-    /* Header */
     .app-header {
       position: sticky; top: 0; z-index: 10;
-      background: rgba(245,242,236,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1.5px solid var(--border);
+      background: rgba(10,10,10,0.96); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
     }
 
-    /* Exercise list item in edit mode */
     .ex-row {
-      display: grid;
-      gap: 8px;
-      padding: 10px;
-      background: white;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 6px;
+      display: grid; gap: 8px; padding: 12px; background: var(--surface2);
+      border: 1px solid var(--border2); border-radius: 2px; margin-bottom: 6px;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
     .workout-select {
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6560' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      padding-right: 28px;
-      font-weight: 600;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e6e' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      padding-right: 30px; font-weight: 700; font-size: 15px; letter-spacing: 0.01em;
     }
+
+    .block-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .block-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--surface2); }
   </style>
 </head>
 <body>
@@ -230,291 +158,136 @@
   <script type="text/babel" data-presets="env,react" data-plugins="proposal-optional-chaining">
 
     // ---------- AUDIO ----------
+    // Generates WAV data URIs — plays via HTML Audio element which respects
+    // media volume (not ringer switch) on iOS, so it works on silent mode.
+    function makeWavBase64(freqHz, durationSec, volume) {
+      const sr = 22050;
+      const n = Math.floor(sr * durationSec);
+      const buf = new ArrayBuffer(44 + n * 2);
+      const v = new DataView(buf);
+      const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+      ws(0,'RIFF'); v.setUint32(4, 36 + n*2, true); ws(8,'WAVE'); ws(12,'fmt ');
+      v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+      v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+      ws(36,'data'); v.setUint32(40, n*2, true);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const env = Math.min(1, t / 0.008) * Math.exp(-t * 5.5);
+        const samp = Math.sin(2 * Math.PI * freqHz * t) * env * volume * 32767;
+        v.setInt16(44 + i*2, Math.max(-32768, Math.min(32767, samp)), true);
+      }
+      const bytes = new Uint8Array(buf);
+      let b = ''; for (let i = 0; i < bytes.byteLength; i++) b += String.fromCharCode(bytes[i]);
+      return btoa(b);
+    }
+
+    const SND = {
+      hi:   `data:audio/wav;base64,${makeWavBase64(659.25, 0.45, 0.32)}`,
+      mid:  `data:audio/wav;base64,${makeWavBase64(523.25, 0.42, 0.30)}`,
+      rest: `data:audio/wav;base64,${makeWavBase64(392,    0.30, 0.22)}`,
+    };
+
+    function playAudio(src, delayMs = 0) {
+      setTimeout(() => {
+        try { const a = new Audio(src); a.volume = 1.0; a.play().catch(()=>{}); } catch(e) {}
+      }, delayMs);
+    }
+
     function playChime(type = 'complete') {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const notes = type === 'complete'
-          ? [{ f: 523.25, t: 0, d: 0.3 }, { f: 659.25, t: 0.15, d: 0.4 }]   // C5, E5 — gentle two-tone
-          : [{ f: 392, t: 0, d: 0.25 }];  // G4 — soft single for rest start
-
-        notes.forEach(({ f, t, d }) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.value = f;
-          gain.gain.setValueAtTime(0, ctx.currentTime + t);
-          gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + t + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + d);
-          osc.start(ctx.currentTime + t);
-          osc.stop(ctx.currentTime + t + d + 0.05);
-        });
-      } catch(e) {}
+      if (type === 'complete') { playAudio(SND.mid, 0); playAudio(SND.hi, 170); }
+      else { playAudio(SND.rest, 0); }
     }
 
-    // ---------- LOCAL STORAGE ----------
-    function useLocalStorage(key, initialValue) {
-      const [state, setState] = React.useState(() => {
-        try { const raw = window.localStorage.getItem(key); return raw != null ? JSON.parse(raw) : initialValue; }
-        catch { return initialValue; }
-      });
+    // ---------- FLASH OVERLAY ----------
+    function FlashOverlay({ trigger }) {
+      const [visible, setVisible] = React.useState(false);
+      const prev = React.useRef(0);
       React.useEffect(() => {
-        try { window.localStorage.setItem(key, JSON.stringify(state)); } catch {}
-      }, [key, state]);
-      return [state, setState];
+        if (trigger > prev.current) {
+          prev.current = trigger;
+          setVisible(true);
+          setTimeout(() => setVisible(false), 650);
+        }
+      }, [trigger]);
+      return visible ? <div className="flash-overlay" /> : null;
     }
 
-    // ---------- COUNTDOWN ----------
-    const toMs = (sec) => Math.max(0, Math.round(Number(sec || 0) * 1000));
+    // ---------- HOOKS ----------
+    function useLocalStorage(key, init) {
+      const [s, setS] = React.useState(() => {
+        try { const r = window.localStorage.getItem(key); return r != null ? JSON.parse(r) : init; } catch { return init; }
+      });
+      React.useEffect(() => { try { window.localStorage.setItem(key, JSON.stringify(s)); } catch {} }, [key, s]);
+      return [s, setS];
+    }
+
+    const toMs = (sec) => Math.max(0, Math.round(Number(sec||0)*1000));
 
     function useCountdown(ms, running) {
-      const [remaining, setRemaining] = React.useState(ms);
-      const rafRef = React.useRef(null);
+      const [rem, setRem] = React.useState(ms);
+      const raf = React.useRef(null);
       const startRef = React.useRef(null);
-      const baseRef = React.useRef(ms);
-
-      React.useEffect(() => { setRemaining(ms); baseRef.current = ms; }, [ms]);
-
+      React.useEffect(() => { setRem(ms); }, [ms]);
       React.useEffect(() => {
-        if (!running) { cancelAnimationFrame(rafRef.current); return; }
+        if (!running) { cancelAnimationFrame(raf.current); return; }
+        const startRem = rem;
         startRef.current = performance.now();
-        const startRemaining = remaining;
         const loop = (t) => {
-          const elapsed = t - startRef.current;
-          const next = Math.max(0, startRemaining - elapsed);
-          setRemaining(next);
-          if (next > 0) rafRef.current = requestAnimationFrame(loop);
+          const next = Math.max(0, startRem - (t - startRef.current));
+          setRem(next);
+          if (next > 0) raf.current = requestAnimationFrame(loop);
         };
-        rafRef.current = requestAnimationFrame(loop);
-        return () => cancelAnimationFrame(rafRef.current);
+        raf.current = requestAnimationFrame(loop);
+        return () => cancelAnimationFrame(raf.current);
       }, [running]);
-
-      return [remaining];
+      return [rem];
     }
 
-    // ---------- SMART IMPORT / AUTO-FIX ----------
+    // ---------- SMART IMPORT ----------
     function autoFix(raw) {
-      // Try parsing; if it fails, attempt light cleanup
       let data;
       try { data = JSON.parse(raw); }
       catch {
-        // strip markdown code fences
-        const cleaned = raw.replace(/^```[a-z]*\n?/gm, '').replace(/```$/gm, '').trim();
-        try { data = JSON.parse(cleaned); }
-        catch(e) { return { ok: false, error: 'Could not parse JSON: ' + e.message }; }
+        const c = raw.replace(/^```[a-z]*\n?/gm,'').replace(/```$/gm,'').trim();
+        try { data = JSON.parse(c); } catch(e) { return { ok:false, error:'Could not parse JSON: '+e.message }; }
       }
-
       const arr = Array.isArray(data) ? data : [data];
-      const fixed = [];
-      const errors = [];
-
-      arr.forEach((obj, wi) => {
-        if (!obj || typeof obj !== 'object') { errors.push(`Item ${wi+1}: not an object`); return; }
-
-        // Fix title
-        const title = obj.title || obj.name || obj.workout_name || obj.workoutName || `Workout ${wi+1}`;
-
-        // Find categories array under various key names
-        const cats = obj.categories || obj.blocks || obj.sections || obj.exercises_by_block || [];
-        if (!Array.isArray(cats)) { errors.push(`Item ${wi+1} "${title}": cannot find categories array`); return; }
-
-        const fixedCats = [];
-        const catErrors = [];
-
-        cats.forEach((blk, bi) => {
-          if (!blk || typeof blk !== 'object') { catErrors.push(`Block ${bi+1}: not an object`); return; }
-
-          const blkName = blk.name || blk.block_name || blk.blockName || blk.category || `Block ${bi+1}`;
-          const blkRounds = Number(blk.rounds || blk.sets || blk.round_count || 1);
-
-          // Find exercises array
-          const exArr = blk.exercises || blk.movements || blk.exercise_list || blk.items || [];
-          if (!Array.isArray(exArr)) { catErrors.push(`Block "${blkName}": cannot find exercises`); return; }
-
-          const fixedEx = [];
-          exArr.forEach((ex, ei) => {
-            if (!ex || typeof ex !== 'object') return;
-            const desc = ex.description || ex.name || ex.exercise || ex.movement || ex.title || `Exercise ${ei+1}`;
-
-            // Duration: try multiple field names, handle string "30s" / "30 seconds"
-            let dur = ex.duration || ex.time || ex.seconds || ex.reps || ex.count || ex.duration_seconds || 10;
-            if (typeof dur === 'string') {
-              dur = parseFloat(dur.replace(/[^0-9.]/g, '')) || 10;
-            }
+      const fixed=[], errors=[];
+      arr.forEach((obj,wi) => {
+        if (!obj||typeof obj!=='object') { errors.push(`Item ${wi+1}: not an object`); return; }
+        const title = obj.title||obj.name||obj.workout_name||obj.workoutName||`Workout ${wi+1}`;
+        const cats = obj.categories||obj.blocks||obj.sections||obj.exercises_by_block||[];
+        if (!Array.isArray(cats)) { errors.push(`"${title}": no categories`); return; }
+        const fixedCats=[], catErr=[];
+        cats.forEach((blk,bi) => {
+          if (!blk||typeof blk!=='object') { catErr.push(`Block ${bi+1}: not object`); return; }
+          const bname = blk.name||blk.block_name||blk.blockName||blk.category||`Block ${bi+1}`;
+          const rounds = Number(blk.rounds||blk.sets||blk.round_count||1);
+          const exArr = blk.exercises||blk.movements||blk.exercise_list||blk.items||[];
+          if (!Array.isArray(exArr)) { catErr.push(`"${bname}": no exercises`); return; }
+          const fixedEx=[];
+          exArr.forEach((ex,ei) => {
+            if (!ex||typeof ex!=='object') return;
+            const desc = ex.description||ex.name||ex.exercise||ex.movement||ex.title||`Ex ${ei+1}`;
+            let dur = ex.duration||ex.time||ex.seconds||ex.reps||ex.count||ex.duration_seconds||10;
+            if (typeof dur==='string') dur = parseFloat(dur.replace(/[^0-9.]/g,''))||10;
             dur = Number(dur);
-
-            // Unit: normalize variations
-            let unit = (ex.unit || ex.type || '').toString().toLowerCase();
-            if (/rep|count|times|x/.test(unit)) unit = 'reps';
-            else if (/sec|time|hold|s$/.test(unit)) unit = 'seconds';
-            else if (ex.reps && !ex.duration) unit = 'reps';
-            else unit = 'seconds';
-
-            const instructions = ex.instructions || ex.cues || ex.coaching || ex.notes || ex.form_cues || '';
-
-            fixedEx.push({ description: desc, duration: dur, unit, instructions });
+            let unit = (ex.unit||ex.type||'').toString().toLowerCase();
+            if (/rep|count|times|x/.test(unit)) unit='reps';
+            else if (/sec|time|hold|s$/.test(unit)) unit='seconds';
+            else if (ex.reps&&!ex.duration) unit='reps';
+            else unit='seconds';
+            const instructions = ex.instructions||ex.cues||ex.coaching||ex.notes||ex.form_cues||'';
+            fixedEx.push({ description:desc, duration:dur, unit, instructions });
           });
-
-          if (fixedEx.length === 0) { catErrors.push(`Block "${blkName}": no exercises found`); return; }
-          fixedCats.push({ name: blkName, rounds: Math.max(1, blkRounds || 1), exercises: fixedEx });
+          if (!fixedEx.length) { catErr.push(`"${bname}": no exercises`); return; }
+          fixedCats.push({ name:bname, rounds:Math.max(1,rounds), exercises:fixedEx });
         });
-
-        if (fixedCats.length === 0) {
-          errors.push(`Item ${wi+1} "${title}": ${catErrors.join('; ')}`);
-          return;
-        }
-
-        const warnings = catErrors.length ? ` (skipped: ${catErrors.join('; ')})` : '';
-        fixed.push({ workout: { title, categories: fixedCats }, warnings });
+        if (!fixedCats.length) { errors.push(`"${title}": ${catErr.join('; ')}`); return; }
+        fixed.push({ workout:{ title, categories:fixedCats }, warnings: catErr.length ? catErr.join('; ') : '' });
       });
-
-      if (fixed.length === 0) return { ok: false, error: errors.join('\n') };
-      return { ok: true, workouts: fixed.map(f => f.workout), warnings: fixed.flatMap(f => f.warnings ? [f.warnings] : []) };
-    }
-
-    // ---------- DEFAULT LIBRARY ----------
-    const INITIAL_LIBRARY = [
-      {
-        title: "Arm & Ab Workout",
-        categories: [
-          { name: "Warm-Up", rounds: 1, exercises: [
-            { description: "Arm Circles", duration: 30, unit: "seconds", instructions: "Small to large circles, forward and backward. Keep shoulders relaxed, not hunched." },
-            { description: "Cat-Cow", duration: 6, unit: "reps", instructions: "Breathe with movement; exhale to arch (cat), inhale to drop (cow). Move through full spine — don't just move the neck." },
-            { description: "Torso Twists", duration: 20, unit: "reps", instructions: "Rotate from the ribcage, not just the arms. Keep hips square and facing forward." }
-          ]},
-          { name: "Core (Mat)", rounds: 3, exercises: [
-            { description: "Plank Hold", duration: 45, unit: "seconds", instructions: "Elbows directly under shoulders. Press ribs DOWN — no banana back. Squeeze glutes. Chin tucked — neutral neck, not drooping or craning." },
-            { description: "Bicycle Crunches", duration: 20, unit: "reps", instructions: "Shoulder (not elbow) reaches toward knee. Go SLOW — speed kills form. Exhale on each twist. Keep lower back pressed into mat." },
-            { description: "Russian Twists", duration: 20, unit: "reps", instructions: "Neutral spine — don't round the back. Rotate from the ribcage. Tap the floor on each side. Feet can stay down if needed." }
-          ]},
-          { name: "Upper Body (Weights)", rounds: 3, exercises: [
-            { description: "Dumbbell Curl to Press", duration: 12, unit: "reps", instructions: "No swinging. At the top of the curl, rotate to neutral grip before pressing. Ribs stay locked down — don't arch to get the weight up." },
-            { description: "Bench Dips", duration: 12, unit: "reps", instructions: "Shoulders DOWN and BACK — don't let them creep toward your ears. Stop at ~90° elbow. Full lockout at the top." },
-            { description: "Hammer Curls", duration: 12, unit: "reps", instructions: "Elbows stay pinned at your sides. Neutral (hammer) grip throughout. Control the negative — don't just drop it." }
-          ]},
-          { name: "Cooldown", rounds: 1, exercises: [
-            { description: "Seated Forward Fold", duration: 45, unit: "seconds", instructions: "Hinge at hips, not the waist. Soft knees. Let your neck and jaw completely relax. Breathe into the stretch." },
-            { description: "Cross-Body Shoulder", duration: 30, unit: "seconds", instructions: "Gently pull arm across chest. Keep the shoulder you're stretching DOWN — don't let it shrug." },
-            { description: "Child's Pose", duration: 45, unit: "seconds", instructions: "Sit back toward heels. Reach arms long. Breathe slowly — try to get longer with each exhale." }
-          ]}
-        ]
-      },
-      {
-        title: "Leg & Glute Workout",
-        categories: [
-          { name: "Warm-Up", rounds: 1, exercises: [
-            { description: "Bodyweight Squats", duration: 12, unit: "reps", instructions: "Feet shoulder-width, toes slightly out. Sit BACK — weight on mid-foot and heels. Chest tall. Knees track over mid-foot." },
-            { description: "Hip Circles", duration: 30, unit: "seconds", instructions: "Hands on hips. Draw big deliberate circles. Both directions equally. Slow and controlled." },
-            { description: "Leg Swings", duration: 10, unit: "reps", instructions: "Front to back. Brace your core to protect the lower back. Start small, build range gradually over reps." }
-          ]},
-          { name: "Glute Activation (Mat)", rounds: 3, exercises: [
-            { description: "Glute Bridge", duration: 15, unit: "reps", instructions: "Heels close to your butt. Drive through HEELS, not toes. Pause and SQUEEZE at the top for 1 second. Don't let the lower back take over." },
-            { description: "Clamshells", duration: 15, unit: "reps", instructions: "Band above knees. Stack your hips — don't roll back. Small, controlled range. You should feel this in the glute, not the hip flexor." },
-            { description: "Side Plank Hip Lifts", duration: 12, unit: "reps", instructions: "Elbow directly under shoulder. Stack feet or stagger for easier balance. Lift straight up — don't twist. Keep hips square." }
-          ]},
-          { name: "Leg Strength (Weights)", rounds: 3, exercises: [
-            { description: "Bulgarian Split Squat", duration: 12, unit: "reps", instructions: "Long stance — front shin should be roughly vertical at the bottom. Torso tall. Drive through the front heel to stand. Knee tracks over mid-foot." },
-            { description: "Step Ups", duration: 12, unit: "reps", instructions: "Full foot on bench — no half-stepping. Drive through the HEEL of the raised foot. Control the step down — don't just fall off." },
-            { description: "Romanian Deadlift", duration: 12, unit: "reps", instructions: "FLAT BACK — this is the whole exercise. Hinge at hips, not waist. Slight bend in knees. Bar/weights stay close to legs. Feel the stretch in the hamstrings." },
-            { description: "Squat Jumps", duration: 15, unit: "reps", instructions: "Land SOFT — think quiet feet. Chest stays tall throughout. Great for skiing — focus on explosive power AND controlled landing." }
-          ]},
-          { name: "Cooldown", rounds: 1, exercises: [
-            { description: "Standing Quad", duration: 30, unit: "seconds", instructions: "Knees together. Slight posterior tilt (tuck) to feel more stretch. Stand tall." },
-            { description: "Figure-4 Stretch", duration: 30, unit: "seconds", instructions: "Cross ankle over opposite knee. Sit back like into a chair. Keep spine long — don't round." },
-            { description: "Seated Hamstring", duration: 45, unit: "seconds", instructions: "Extend leg. Hinge FORWARD from the hip — don't round the back to reach. Breathe into the stretch. Relax the hamstring with each exhale." }
-          ]}
-        ]
-      }
-    ];
-
-    // ---------- SCHEDULER ----------
-    function buildSchedule(blocks, restSeconds) {
-      const steps = [];
-      (blocks || []).forEach((blk, bi) => {
-        const rounds = Math.max(1, Number(blk.rounds || 1));
-        for (let r = 1; r <= rounds; r++) {
-          (blk.exercises || []).forEach((_, ei) => {
-            steps.push({ type: 'exercise', bi, ri: r, ei });
-          });
-          // Add rest between rounds (not after the last round)
-          if (r < rounds) {
-            steps.push({ type: 'rest', bi, ri: r, duration: restSeconds });
-          }
-        }
-      });
-      return steps;
-    }
-
-    // ---------- EDITOR COMPONENTS ----------
-    function ExerciseEditor({ ex, onChange, onDelete }) {
-      return (
-        <div className="ex-row">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '8px', alignItems: 'center' }}>
-            <input type="text" value={ex.description} placeholder="Exercise name"
-              onChange={e => onChange({ ...ex, description: e.target.value })}
-              style={{ width: '100%' }} />
-            <input type="number" min={1} value={ex.duration} placeholder="Amount"
-              onChange={e => onChange({ ...ex, duration: Number(e.target.value) || 1 })}
-              style={{ width: '72px', textAlign: 'right' }} />
-            <select value={ex.unit} onChange={e => onChange({ ...ex, unit: e.target.value })} style={{ width: '90px' }}>
-              <option value="seconds">sec</option>
-              <option value="reps">reps</option>
-            </select>
-          </div>
-          <textarea
-            value={ex.instructions || ''}
-            placeholder="Coaching cues (e.g. flat back, drive through heels, shoulders down...)"
-            rows={2}
-            onChange={e => onChange({ ...ex, instructions: e.target.value })}
-            style={{ width: '100%', resize: 'vertical', fontSize: '13px' }}
-          />
-          <button className="btn-danger" onClick={onDelete} style={{ alignSelf: 'flex-start', fontSize: '12px', padding: '4px 10px' }}>
-            Remove
-          </button>
-        </div>
-      );
-    }
-
-    function BlockEditor({ blk, onChange, onDelete }) {
-      const updateEx = (ei, updated) => {
-        const exs = [...blk.exercises];
-        exs[ei] = updated;
-        onChange({ ...blk, exercises: exs });
-      };
-      const deleteEx = (ei) => {
-        const exs = blk.exercises.filter((_, i) => i !== ei);
-        onChange({ ...blk, exercises: exs });
-      };
-      const addEx = () => {
-        onChange({ ...blk, exercises: [...blk.exercises, { description: '', duration: 30, unit: 'seconds', instructions: '' }] });
-      };
-
-      return (
-        <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap' }}>
-            <input type="text" value={blk.name} placeholder="Block name (e.g. Core Mat)"
-              onChange={e => onChange({ ...blk, name: e.target.value })}
-              style={{ flex: 1, minWidth: '140px', fontWeight: 600 }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Rounds</span>
-              <input type="number" min={1} max={10} value={blk.rounds}
-                onChange={e => onChange({ ...blk, rounds: Math.max(1, Number(e.target.value) || 1) })}
-                style={{ width: '60px', textAlign: 'center' }} />
-            </div>
-            <button className="btn-danger" onClick={onDelete}>Delete block</button>
-          </div>
-
-          {blk.exercises.map((ex, ei) => (
-            <ExerciseEditor key={ei} ex={ex}
-              onChange={updated => updateEx(ei, updated)}
-              onDelete={() => deleteEx(ei)} />
-          ))}
-
-          <button className="btn-ghost" onClick={addEx} style={{ marginTop: '4px', fontSize: '13px' }}>
-            + Add exercise
-          </button>
-        </div>
-      );
+      if (!fixed.length) return { ok:false, error:errors.join('\n') };
+      return { ok:true, workouts:fixed.map(f=>f.workout), warnings:fixed.flatMap(f=>f.warnings?[f.warnings]:[]) };
     }
 
     // ---------- AI PROMPT ----------
@@ -550,8 +323,124 @@ Rules:
 - "duration" must be a number (not a string like "30s")
 - "rounds" must be a number (how many times to repeat the block)
 - "instructions" should include practical form cues: what to focus on, common mistakes to avoid, what the movement should feel like
-- Include a warm-up block (rounds: 1), 1–3 main blocks (rounds: 2–4), and a cooldown block (rounds: 1)
-- Return only the JSON — no markdown, no code fences, no explanation`;
+- Include a warm-up block (rounds: 1), 1-3 main blocks (rounds: 2-4), and a cooldown block (rounds: 1)
+- Return only the JSON - no markdown, no code fences, no explanation`;
+
+    // ---------- LIBRARY ----------
+    const INITIAL_LIBRARY = [
+      {
+        title: "Arm & Ab Workout",
+        categories: [
+          { name: "Warm-Up", rounds: 1, exercises: [
+            { description: "Arm Circles", duration: 30, unit: "seconds", instructions: "Small to large circles, forward and backward. Keep shoulders relaxed, not hunched." },
+            { description: "Cat-Cow", duration: 6, unit: "reps", instructions: "Breathe with movement; exhale to arch (cat), inhale to drop (cow). Move through full spine — don't just move the neck." },
+            { description: "Torso Twists", duration: 20, unit: "reps", instructions: "Rotate from the ribcage, not just the arms. Keep hips square and facing forward." }
+          ]},
+          { name: "Core (Mat)", rounds: 3, exercises: [
+            { description: "Plank Hold", duration: 45, unit: "seconds", instructions: "Elbows directly under shoulders. Press ribs DOWN — no banana back. Squeeze glutes. Chin tucked — neutral neck." },
+            { description: "Bicycle Crunches", duration: 20, unit: "reps", instructions: "Shoulder (not elbow) reaches toward knee. Go SLOW — speed kills form. Exhale on each twist. Lower back pressed into mat." },
+            { description: "Russian Twists", duration: 20, unit: "reps", instructions: "Neutral spine — don't round the back. Rotate from the ribcage. Tap the floor on each side." }
+          ]},
+          { name: "Upper Body (Weights)", rounds: 3, exercises: [
+            { description: "Dumbbell Curl to Press", duration: 12, unit: "reps", instructions: "No swinging. Rotate to neutral grip before pressing. Ribs stay locked down — don't arch." },
+            { description: "Bench Dips", duration: 12, unit: "reps", instructions: "Shoulders DOWN and BACK. Stop at ~90° elbow. Full lockout at the top." },
+            { description: "Hammer Curls", duration: 12, unit: "reps", instructions: "Elbows pinned at your sides. Neutral grip throughout. Control the negative." }
+          ]},
+          { name: "Cooldown", rounds: 1, exercises: [
+            { description: "Seated Forward Fold", duration: 45, unit: "seconds", instructions: "Hinge at hips, not the waist. Soft knees. Let neck and jaw completely relax." },
+            { description: "Cross-Body Shoulder", duration: 30, unit: "seconds", instructions: "Gently pull arm across chest. Keep shoulder DOWN — don't let it shrug." },
+            { description: "Child's Pose", duration: 45, unit: "seconds", instructions: "Sit back toward heels. Reach arms long. Try to get longer with each exhale." }
+          ]}
+        ]
+      },
+      {
+        title: "Leg & Glute Workout",
+        categories: [
+          { name: "Warm-Up", rounds: 1, exercises: [
+            { description: "Bodyweight Squats", duration: 12, unit: "reps", instructions: "Feet shoulder-width, toes slightly out. Sit BACK — weight on mid-foot and heels. Chest tall." },
+            { description: "Hip Circles", duration: 30, unit: "seconds", instructions: "Hands on hips. Draw big deliberate circles. Both directions equally." },
+            { description: "Leg Swings", duration: 10, unit: "reps", instructions: "Front to back. Brace core. Start small, build range gradually." }
+          ]},
+          { name: "Glute Activation (Mat)", rounds: 3, exercises: [
+            { description: "Glute Bridge", duration: 15, unit: "reps", instructions: "Drive through HEELS, not toes. Pause and SQUEEZE at the top. Don't let the lower back take over." },
+            { description: "Clamshells", duration: 15, unit: "reps", instructions: "Band above knees. Stack your hips — don't roll back. Feel this in the glute, not the hip flexor." },
+            { description: "Side Plank Hip Lifts", duration: 12, unit: "reps", instructions: "Elbow under shoulder. Lift straight up — don't twist. Keep hips square." }
+          ]},
+          { name: "Leg Strength (Weights)", rounds: 3, exercises: [
+            { description: "Bulgarian Split Squat", duration: 12, unit: "reps", instructions: "Long stance — front shin vertical at bottom. Torso tall. Drive through front heel." },
+            { description: "Step Ups", duration: 12, unit: "reps", instructions: "Full foot on bench. Drive through the HEEL of the raised foot. Control the step down." },
+            { description: "Romanian Deadlift", duration: 12, unit: "reps", instructions: "FLAT BACK — this is the whole exercise. Hinge at hips. Weights stay close to legs." },
+            { description: "Squat Jumps", duration: 15, unit: "reps", instructions: "Land SOFT — think quiet feet. Chest stays tall. Explosive power AND controlled landing." }
+          ]},
+          { name: "Cooldown", rounds: 1, exercises: [
+            { description: "Standing Quad", duration: 30, unit: "seconds", instructions: "Knees together. Slight posterior tilt to deepen stretch. Stand tall." },
+            { description: "Figure-4 Stretch", duration: 30, unit: "seconds", instructions: "Cross ankle over opposite knee. Sit back. Keep spine long — don't round." },
+            { description: "Seated Hamstring", duration: 45, unit: "seconds", instructions: "Hinge FORWARD from the hip. Don't round the back to reach. Relax the hamstring with each exhale." }
+          ]}
+        ]
+      }
+    ];
+
+    function buildSchedule(blocks, restSec) {
+      const steps = [];
+      (blocks||[]).forEach((blk,bi) => {
+        const rounds = Math.max(1, Number(blk.rounds||1));
+        for (let r=1; r<=rounds; r++) {
+          (blk.exercises||[]).forEach((_,ei) => steps.push({ type:'exercise', bi, ri:r, ei }));
+          if (r < rounds) steps.push({ type:'rest', bi, ri:r, duration:restSec });
+        }
+      });
+      return steps;
+    }
+
+    // ---------- EDITOR ----------
+    function ExerciseEditor({ ex, onChange, onDelete }) {
+      return (
+        <div className="ex-row">
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 72px 90px', gap:'8px', alignItems:'center' }}>
+            <input type="text" value={ex.description} placeholder="Exercise name"
+              onChange={e => onChange({ ...ex, description:e.target.value })} style={{ width:'100%' }} />
+            <input type="number" min={1} value={ex.duration}
+              onChange={e => onChange({ ...ex, duration:Number(e.target.value)||1 })}
+              style={{ width:'100%', textAlign:'right' }} />
+            <select value={ex.unit} onChange={e => onChange({ ...ex, unit:e.target.value })} style={{ width:'100%' }}>
+              <option value="seconds">sec</option>
+              <option value="reps">reps</option>
+            </select>
+          </div>
+          <textarea value={ex.instructions||''} rows={2}
+            placeholder="Coaching cues (flat back, drive through heels, shoulders down...)"
+            onChange={e => onChange({ ...ex, instructions:e.target.value })}
+            style={{ width:'100%', fontSize:'13px' }} />
+          <button className="btn-danger" onClick={onDelete} style={{ fontSize:'11px', padding:'4px 10px' }}>Remove</button>
+        </div>
+      );
+    }
+
+    function BlockEditor({ blk, onChange, onDelete }) {
+      const upEx = (ei,u) => { const e=[...blk.exercises]; e[ei]=u; onChange({...blk,exercises:e}); };
+      const delEx = (ei) => onChange({ ...blk, exercises:blk.exercises.filter((_,i)=>i!==ei) });
+      const addEx = () => onChange({ ...blk, exercises:[...blk.exercises,{description:'',duration:30,unit:'seconds',instructions:''}] });
+      return (
+        <div style={{ background:'var(--surface)', border:'1px solid var(--border2)', borderRadius:'4px', padding:'16px', marginBottom:'12px' }}>
+          <div style={{ display:'flex', gap:'10px', alignItems:'center', marginBottom:'12px', flexWrap:'wrap' }}>
+            <input type="text" value={blk.name} placeholder="Block name"
+              onChange={e => onChange({...blk,name:e.target.value})} style={{ flex:1, minWidth:'140px', fontWeight:700 }} />
+            <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+              <span style={{ fontSize:'11px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em' }}>Rounds</span>
+              <input type="number" min={1} max={10} value={blk.rounds}
+                onChange={e => onChange({...blk,rounds:Math.max(1,Number(e.target.value)||1)})}
+                style={{ width:'60px', textAlign:'center' }} />
+            </div>
+            <button className="btn-danger" onClick={onDelete}>Delete</button>
+          </div>
+          {blk.exercises.map((ex,ei) => (
+            <ExerciseEditor key={ei} ex={ex} onChange={u=>upEx(ei,u)} onDelete={()=>delEx(ei)} />
+          ))}
+          <button className="btn-ghost" onClick={addEx} style={{ marginTop:'4px', fontSize:'12px', padding:'7px 14px' }}>+ ADD EXERCISE</button>
+        </div>
+      );
+    }
 
     // ---------- IMPORT MODAL ----------
     function ImportModal({ onClose, onImport }) {
@@ -559,139 +448,93 @@ Rules:
       const [result, setResult] = React.useState(null);
       const [copied, setCopied] = React.useState(false);
 
-      const tryFix = () => {
-        if (!text.trim()) return;
-        const r = autoFix(text);
-        setResult(r);
-      };
-
-      const doImport = () => {
-        if (result?.ok) onImport(result.workouts);
-      };
-
+      const tryFix = () => { if (text.trim()) setResult(autoFix(text)); };
+      const doImport = () => { if (result?.ok) onImport(result.workouts); };
       const copyPrompt = () => {
-        navigator.clipboard.writeText(AI_PROMPT).then(() => {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2500);
-        }).catch(() => {
-          // fallback for older browsers
-          const el = document.createElement('textarea');
-          el.value = AI_PROMPT;
-          document.body.appendChild(el);
-          el.select();
-          document.execCommand('copy');
-          document.body.removeChild(el);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2500);
-        });
+        navigator.clipboard.writeText(AI_PROMPT)
+          .then(() => { setCopied(true); setTimeout(()=>setCopied(false),2500); })
+          .catch(() => {
+            const el=document.createElement('textarea'); el.value=AI_PROMPT;
+            document.body.appendChild(el); el.select(); document.execCommand('copy');
+            document.body.removeChild(el); setCopied(true); setTimeout(()=>setCopied(false),2500);
+          });
       };
 
       return (
-        <div className="modal-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className="modal-backdrop" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
           <div className="modal slide-up">
-            <div style={{ padding: '20px 24px', borderBottom: '1.5px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="font-display" style={{ fontSize: '18px', fontWeight: 800 }}>Import Workout JSON</span>
-              <button className="btn-ghost" style={{ padding: '6px 12px' }} onClick={onClose}>✕</button>
+            <div style={{ padding:'20px 24px', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <span className="font-display" style={{ fontSize:'22px', fontWeight:900, letterSpacing:'0.04em', textTransform:'uppercase' }}>Import Workout</span>
+              <button className="btn-ghost" style={{ padding:'6px 12px', fontSize:'12px' }} onClick={onClose}>CLOSE</button>
             </div>
-            <div style={{ padding: '20px 24px' }}>
-
-              {/* AI Prompt copy box */}
-              <div style={{ background: '#f8f6f2', border: '1.5px solid var(--border)', borderRadius: '12px', padding: '14px 16px', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ padding:'20px 24px' }}>
+              {/* Step 1 */}
+              <div style={{ background:'#141a00', border:'1px solid #2a3800', borderRadius:'4px', padding:'16px', marginBottom:'20px' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:'12px' }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '3px' }}>Step 1 — Ask an AI to generate a workout</div>
-                    <div style={{ fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>
-                      Copy the prompt below, paste it into ChatGPT, Claude, or any AI, then add your workout request at the end (e.g. <em>"30-minute upper body, 3 rounds, dumbbells only"</em>).
+                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--volt)', marginBottom:'4px' }}>Step 1</div>
+                    <div style={{ fontSize:'14px', fontWeight:600, marginBottom:'4px' }}>Ask an AI to generate a workout</div>
+                    <div style={{ fontSize:'12px', color:'var(--muted)', lineHeight:1.5 }}>
+                      Copy the prompt, paste into ChatGPT or Claude, then add your request —{' '}
+                      <em style={{ color:'var(--white)' }}>"30-min upper body, 3 rounds, dumbbells only"</em>
                     </div>
                   </div>
-                  <button
-                    onClick={copyPrompt}
-                    style={{
-                      flexShrink: 0,
-                      background: copied ? '#f0fdf4' : 'var(--ink)',
-                      color: copied ? '#15803d' : 'white',
-                      border: copied ? '1.5px solid #bbf7d0' : 'none',
-                      borderRadius: '8px',
-                      padding: '8px 14px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      fontFamily: 'DM Sans, sans-serif',
-                      transition: 'all 0.2s',
-                      whiteSpace: 'nowrap',
-                    }}>
-                    {copied ? '✓ Copied!' : 'Copy prompt'}
+                  <button onClick={copyPrompt} style={{
+                    flexShrink:0, background:copied?'#0d2010':'var(--volt)',
+                    color:copied?'var(--green)':'#0a0a0a', border:copied?'1px solid #1a4a20':'none',
+                    borderRadius:'2px', padding:'10px 16px', fontSize:'12px', fontWeight:800,
+                    cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.08em',
+                    textTransform:'uppercase', transition:'all 0.2s', whiteSpace:'nowrap'
+                  }}>
+                    {copied ? '✓ COPIED' : 'COPY PROMPT'}
                   </button>
                 </div>
                 <div className="font-mono" style={{
-                  marginTop: '10px',
-                  fontSize: '11px',
-                  color: 'var(--muted)',
-                  background: 'white',
-                  border: '1.5px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  maxHeight: '80px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  lineHeight: 1.5,
-                  userSelect: 'none',
+                  marginTop:'12px', fontSize:'11px', color:'var(--muted)',
+                  background:'var(--bg)', border:'1px solid var(--border)', borderRadius:'2px',
+                  padding:'10px', maxHeight:'70px', overflow:'hidden', position:'relative',
+                  lineHeight:1.5, userSelect:'none'
                 }}>
-                  {AI_PROMPT.slice(0, 180)}…
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '30px', background: 'linear-gradient(transparent, white)' }} />
+                  {AI_PROMPT.slice(0,180)}…
+                  <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'28px', background:'linear-gradient(transparent, var(--bg))' }} />
                 </div>
               </div>
 
-              <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}>Step 2 — Paste the JSON here</div>
-              <textarea
-                className="font-mono"
-                style={{ width: '100%', height: '160px', resize: 'vertical', fontSize: '12px', padding: '10px' }}
+              {/* Step 2 */}
+              <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--volt)', marginBottom:'8px' }}>Step 2 — Paste JSON</div>
+              <textarea className="font-mono"
+                style={{ width:'100%', height:'160px', fontSize:'12px', padding:'12px', background:'var(--bg)', border:'1px solid var(--border2)' }}
                 placeholder={'{\n  "title": "My Workout",\n  "categories": [...]\n}'}
-                value={text}
-                onChange={e => { setText(e.target.value); setResult(null); }}
-              />
-              <textarea
-                className="font-mono"
-                style={{ width: '100%', height: '180px', resize: 'vertical', fontSize: '12px', padding: '10px' }}
-                placeholder={'{\n  "title": "My Workout",\n  "categories": [...]\n}'}
-                value={text}
-                onChange={e => { setText(e.target.value); setResult(null); }}
-              />
+                value={text} onChange={e=>{ setText(e.target.value); setResult(null); }} />
 
               {result && (
-                <div style={{ marginTop: '12px', padding: '12px', borderRadius: '10px',
-                  background: result.ok ? '#f0fdf4' : '#fef2f2',
-                  border: `1.5px solid ${result.ok ? '#bbf7d0' : '#fca5a5'}`,
-                  fontSize: '13px', color: result.ok ? '#15803d' : '#dc2626' }}>
+                <div style={{
+                  marginTop:'12px', padding:'12px', borderRadius:'2px', fontSize:'13px',
+                  background: result.ok ? '#0d2010' : '#1a0808',
+                  border: `1px solid ${result.ok ? '#1a4a20' : '#4a1010'}`,
+                  color: result.ok ? 'var(--green)' : 'var(--red)'
+                }}>
                   {result.ok ? (
                     <>
-                      <div style={{ fontWeight: 600, marginBottom: '4px' }}>✓ Ready to import {result.workouts.length} workout{result.workouts.length > 1 ? 's' : ''}</div>
-                      {result.warnings.length > 0 && (
-                        <div style={{ color: '#92400e', marginTop: '4px' }}>⚠ {result.warnings.join('; ')}</div>
-                      )}
-                      <ul style={{ margin: '6px 0 0', paddingLeft: '16px' }}>
-                        {result.workouts.map((w, i) => (
-                          <li key={i}>{w.title} — {w.categories.length} blocks, {w.categories.reduce((s, c) => s + c.exercises.length, 0)} exercises</li>
-                        ))}
+                      <div style={{ fontWeight:700, marginBottom:'6px' }}>✓ READY — {result.workouts.length} workout{result.workouts.length>1?'s':''}</div>
+                      {result.warnings.length>0 && <div style={{ color:'#fbbf24', marginBottom:'4px' }}>⚠ {result.warnings.join('; ')}</div>}
+                      <ul style={{ margin:0, paddingLeft:'16px', color:'var(--white)', fontSize:'13px' }}>
+                        {result.workouts.map((w,i)=><li key={i}>{w.title} — {w.categories.length} blocks, {w.categories.reduce((s,c)=>s+c.exercises.length,0)} exercises</li>)}
                       </ul>
                     </>
                   ) : (
                     <>
-                      <div style={{ fontWeight: 600, marginBottom: '4px' }}>✗ Could not parse</div>
-                      <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'DM Mono, monospace', fontSize: '12px' }}>{result.error}</div>
+                      <div style={{ fontWeight:700, marginBottom:'6px' }}>✗ COULD NOT PARSE</div>
+                      <div style={{ whiteSpace:'pre-wrap', fontFamily:'DM Mono,monospace', fontSize:'12px', color:'var(--muted)' }}>{result.error}</div>
                     </>
                   )}
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
-                <button className="btn-ghost" onClick={onClose}>Cancel</button>
-                {!result?.ok && (
-                  <button className="btn-primary" onClick={tryFix} disabled={!text.trim()}>Validate & Fix</button>
-                )}
-                {result?.ok && (
-                  <button className="btn-accent" onClick={doImport}>Import ✓</button>
-                )}
+              <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', marginTop:'16px' }}>
+                <button className="btn-ghost" onClick={onClose}>CANCEL</button>
+                {!result?.ok && <button className="btn-white" onClick={tryFix} disabled={!text.trim()}>VALIDATE & FIX</button>}
+                {result?.ok  && <button className="btn-volt"  onClick={doImport}>IMPORT ✓</button>}
               </div>
             </div>
           </div>
@@ -700,82 +543,65 @@ Rules:
     }
 
     // ---------- BIG TIMER ----------
-    function BigTimer({ ms, running, onToggle, onComplete, isRest }) {
-      const [remaining] = useCountdown(ms, running);
-      const seconds = Math.ceil(remaining / 1000);
-      const progress = ms > 0 ? remaining / ms : 0;
-
-      const R = 54;
-      const circ = 2 * Math.PI * R;
-      const dash = circ * progress;
-
-      const prevRemaining = React.useRef(remaining);
+    function BigTimer({ ms, running, onToggle, onComplete, isRest, done }) {
+      const [rem] = useCountdown(ms, running);
+      const seconds = Math.ceil(rem / 1000);
+      const progress = ms > 0 ? rem / ms : 0;
+      const R = 58, circ = 2 * Math.PI * R;
+      const prev = React.useRef(rem);
       React.useEffect(() => {
-        if (prevRemaining.current > 0 && remaining === 0) onComplete?.();
-        prevRemaining.current = remaining;
-      }, [remaining]);
+        if (prev.current > 0 && rem === 0) onComplete?.();
+        prev.current = rem;
+      }, [rem]);
 
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
-          <div style={{ position: 'relative', width: 140, height: 140 }}>
-            <svg width={140} height={140} viewBox="0 0 140 140" className={`timer-ring ${isRest ? 'timer-ring-rest' : ''}`}>
-              <circle className="timer-ring-bg" cx={70} cy={70} r={R} />
-              <circle className="timer-ring-progress" cx={70} cy={70} r={R}
-                strokeDasharray={circ}
-                strokeDashoffset={circ - dash} />
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'20px', marginTop:'28px' }}>
+          <div style={{ position:'relative', width:150, height:150 }}>
+            <svg width={150} height={150} viewBox="0 0 150 150"
+              className={`timer-ring${isRest?' timer-ring-rest':''}${done?' timer-ring-done':''}`}>
+              <circle className="timer-ring-bg" cx={75} cy={75} r={R} />
+              <circle className="timer-ring-progress" cx={75} cy={75} r={R}
+                strokeDasharray={circ} strokeDashoffset={circ - circ*progress} />
             </svg>
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="font-display" style={{ fontSize: seconds >= 100 ? '36px' : '48px', fontWeight: 800, color: seconds === 0 ? '#dc2626' : 'var(--ink)', lineHeight: 1 }}>
-                {seconds}
-              </span>
-              <span style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+              <span className="font-display" style={{
+                fontSize: seconds>=100?'44px':'60px', fontWeight:900, lineHeight:1,
+                color: done ? 'var(--red)' : isRest ? 'var(--rest-color)' : 'var(--volt)'
+              }}>{seconds}</span>
+              <span style={{ fontSize:'10px', color:'var(--muted)', marginTop:'3px', letterSpacing:'0.12em', textTransform:'uppercase', fontWeight:700 }}>
                 {isRest ? 'rest' : 'sec'}
               </span>
             </div>
           </div>
-          <button className="btn-ghost" onClick={onToggle} style={{ minWidth: '100px' }}>
-            {running ? '⏸ Pause' : '▶ Start'}
+          <button className={running ? 'btn-ghost' : (isRest ? 'btn-ghost' : 'btn-volt')}
+            onClick={onToggle} style={{ minWidth:'120px', fontSize:'13px' }}>
+            {running ? '⏸ PAUSE' : '▶ START'}
           </button>
         </div>
       );
     }
 
     // ---------- REST SCREEN ----------
-    function RestScreen({ duration, onSkip, autoRun }) {
+    function RestScreen({ duration, onSkip, setFlashTrigger }) {
       const ms = toMs(duration);
-      const [running, setRunning] = React.useState(autoRun);
+      const [running, setRunning] = React.useState(true);
       const [done, setDone] = React.useState(false);
-
-      React.useEffect(() => {
-        if (autoRun) {
-          playChime('rest');
-          setRunning(true);
-        }
-      }, []);
-
-      const handleComplete = () => {
-        playChime('complete');
-        setDone(true);
-      };
-
+      React.useEffect(() => { playChime('rest'); }, []);
       return (
-        <div className="card fade-in" style={{ padding: '28px 24px', textAlign: 'center' }}>
-          <div className="badge badge-purple" style={{ marginBottom: '12px' }}>Rest</div>
-          <div className="font-display" style={{ fontSize: '28px', fontWeight: 800, marginBottom: '4px' }}>
-            Take a breather
-          </div>
-          <div style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '8px' }}>
-            Next round coming up
-          </div>
-          <BigTimer ms={ms} running={running} onToggle={() => setRunning(r => !r)}
-            onComplete={handleComplete} isRest={true} />
-          {done && <div style={{ color: 'var(--rest)', marginTop: '12px', fontWeight: 600 }}>Rest complete!</div>}
-          <button className="btn-ghost" onClick={onSkip} style={{ marginTop: '20px' }}>Skip rest →</button>
+        <div className="card scale-in" style={{ padding:'32px 24px', textAlign:'center' }}>
+          <span className="badge badge-purple" style={{ marginBottom:'16px' }}>REST</span>
+          <div className="font-display" style={{ fontSize:'40px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.02em', lineHeight:1 }}>Take a breather</div>
+          <div style={{ color:'var(--muted)', fontSize:'14px', marginTop:'6px' }}>Next round coming up</div>
+          <BigTimer ms={ms} running={running} onToggle={()=>setRunning(r=>!r)}
+            onComplete={()=>{ playChime('complete'); setFlashTrigger(t=>t+1); setDone(true); }}
+            isRest={true} done={done} />
+          {done && <div style={{ color:'var(--rest-color)', marginTop:'16px', fontWeight:800, fontSize:'13px', letterSpacing:'0.08em', textTransform:'uppercase' }}>Rest complete — let's go</div>}
+          <button className="btn-ghost" onClick={onSkip} style={{ marginTop:'24px', fontSize:'12px' }}>SKIP REST →</button>
         </div>
       );
     }
 
-    // ---------- MAIN APP ----------
+    // ---------- APP ----------
     function App() {
       const [library, setLibrary] = useLocalStorage("workout_library_v3", INITIAL_LIBRARY);
       const [currentIndex, setCurrentIndex] = useLocalStorage("workout_current_index_v3", 0);
@@ -785,319 +611,250 @@ Rules:
       const [editDraft, setEditDraft] = React.useState(null);
       const [showImport, setShowImport] = React.useState(false);
       const [banner, setBanner] = React.useState(null);
+      const [flashTrigger, setFlashTrigger] = React.useState(0);
 
-      const safeIndex = Math.min(currentIndex, library.length - 1);
-      const workout = library[safeIndex] || INITIAL_LIBRARY[0];
-      const blocks = workout.categories || [];
+      const safeIdx = Math.min(currentIndex, library.length-1);
+      const workout = library[safeIdx] || INITIAL_LIBRARY[0];
+      const blocks  = workout.categories || [];
 
-      // Run state
       const [schedule, setSchedule] = React.useState([]);
       const [idx, setIdx] = React.useState(0);
       const cur = schedule[idx];
+      const curEx   = cur?.type==='exercise' ? cur : null;
+      const curRest = cur?.type==='rest'     ? cur : null;
+      const curBlock = curEx ? blocks[curEx.bi] : null;
+      const current  = curEx && curBlock ? curBlock.exercises?.[curEx.ei] : null;
 
       const [running, setRunning] = React.useState(false);
       const [timerDone, setTimerDone] = React.useState(false);
       const [seed, setSeed] = React.useState(0);
 
-      const curExStep = cur?.type === 'exercise' ? cur : null;
-      const curRestStep = cur?.type === 'rest' ? cur : null;
+      React.useEffect(()=>{ setRunning(false); setTimerDone(false); setSeed(s=>s+1); },[idx]);
 
-      const currentBlock = curExStep ? blocks[curExStep.bi] : null;
-      const current = curExStep && currentBlock ? currentBlock.exercises?.[curExStep.ei] : null;
+      const showBanner = (msg,ms=4000) => { setBanner(msg); setTimeout(()=>setBanner(null),ms); };
+      const startRun = () => { setSchedule(buildSchedule(blocks,restSeconds)); setIdx(0); setMode('RUN'); };
+      const next = () => { if(idx+1<schedule.length) setIdx(idx+1); else setMode('PLAN'); };
+      const prev = () => { if(idx>0) setIdx(idx-1); };
 
-      React.useEffect(() => {
-        setRunning(false); setTimerDone(false); setSeed(s => s + 1);
-      }, [idx]);
-
-      const showBanner = (msg, ms = 4000) => {
-        setBanner(msg);
-        setTimeout(() => setBanner(null), ms);
-      };
-
-      const startRun = () => {
-        const sched = buildSchedule(blocks, restSeconds);
-        setSchedule(sched); setIdx(0); setMode('RUN');
-      };
-      const next = () => { if (idx + 1 < schedule.length) setIdx(idx + 1); else setMode('PLAN'); };
-      const prev = () => { if (idx > 0) setIdx(idx - 1); };
-
-      // Edit
-      const openEdit = () => {
-        setEditDraft(JSON.parse(JSON.stringify(workout)));
-        setEditMode(true);
-      };
+      const openEdit = () => { setEditDraft(JSON.parse(JSON.stringify(workout))); setEditMode(true); };
       const cancelEdit = () => { setEditMode(false); setEditDraft(null); };
       const saveEdit = () => {
-        const nextLib = [...library];
-        nextLib[safeIndex] = editDraft;
-        setLibrary(nextLib);
-        setEditMode(false);
-        setEditDraft(null);
-        showBanner('Workout saved.');
+        const nl=[...library]; nl[safeIdx]=editDraft; setLibrary(nl);
+        setEditMode(false); setEditDraft(null); showBanner('Saved.');
       };
       const deleteWorkout = () => {
-        if (library.length <= 1) { showBanner('Cannot delete the last workout.'); return; }
-        if (!confirm(`Delete "${workout.title}"?`)) return;
-        const nextLib = library.filter((_, i) => i !== safeIndex);
-        setLibrary(nextLib);
-        setCurrentIndex(Math.max(0, safeIndex - 1));
-        showBanner('Workout deleted.');
+        if(library.length<=1){ showBanner('Cannot delete the last workout.'); return; }
+        if(!confirm(`Delete "${workout.title}"?`)) return;
+        const nl=library.filter((_,i)=>i!==safeIdx);
+        setLibrary(nl); setCurrentIndex(Math.max(0,safeIdx-1)); showBanner('Deleted.');
       };
-
       const handleImport = (workouts) => {
-        const nextLib = [...library, ...workouts];
-        setLibrary(nextLib);
-        setCurrentIndex(nextLib.length - workouts.length);
-        setShowImport(false);
-        showBanner(`Imported ${workouts.length} workout${workouts.length > 1 ? 's' : ''}.`);
+        const nl=[...library,...workouts]; setLibrary(nl);
+        setCurrentIndex(nl.length-workouts.length); setShowImport(false);
+        showBanner(`Imported ${workouts.length} workout${workouts.length>1?'s':''}.`);
       };
 
-      const progressPct = schedule.length > 0 ? ((idx) / schedule.length) * 100 : 0;
+      const progressPct = schedule.length>0 ? (idx/schedule.length)*100 : 0;
 
       return (
-        <div style={{ minHeight: '100vh' }}>
-          {/* Header */}
-          <header className="app-header">
-            <div style={{ maxWidth: '680px', margin: '0 auto', padding: '12px 16px 10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ minHeight:'100vh' }}>
+          <FlashOverlay trigger={flashTrigger} />
 
-              {/* Row 1: logo + title/select */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span className="font-display" style={{ fontSize: '20px', fontWeight: 800, flexShrink: 0, color: 'var(--accent)' }}>WP</span>
-                {mode === 'PLAN' && !editMode && (
-                  <select className="workout-select" value={safeIndex}
-                    onChange={e => setCurrentIndex(Number(e.target.value))}
-                    style={{ flex: 1, minWidth: 0, width: '100%' }}>
-                    {library.map((w, i) => (<option key={i} value={i}>{w.title}</option>))}
+          {/* ── HEADER ── */}
+          <header className="app-header">
+            <div style={{ maxWidth:'680px', margin:'0 auto', padding:'12px 16px 10px', display:'flex', flexDirection:'column', gap:'8px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+                <span className="font-display" style={{ fontSize:'22px', fontWeight:900, color:'var(--volt)', letterSpacing:'0.04em', flexShrink:0 }}>WP</span>
+                {mode==='PLAN' && !editMode && (
+                  <select className="workout-select" value={safeIdx}
+                    onChange={e=>setCurrentIndex(Number(e.target.value))}
+                    style={{ flex:1, minWidth:0, background:'var(--surface)', color:'var(--white)' }}>
+                    {library.map((w,i)=><option key={i} value={i}>{w.title}</option>)}
                   </select>
                 )}
                 {editMode && (
-                  <input type="text" value={editDraft?.title || ''} placeholder="Workout title"
-                    onChange={e => setEditDraft(d => ({ ...d, title: e.target.value }))}
-                    style={{ flex: 1, fontWeight: 700, fontSize: '15px' }} />
+                  <input type="text" value={editDraft?.title||''} placeholder="Workout title"
+                    onChange={e=>setEditDraft(d=>({...d,title:e.target.value}))}
+                    style={{ flex:1, fontWeight:700, fontSize:'15px' }} />
                 )}
-                {mode === 'RUN' && (
+                {mode==='RUN' && (
                   <>
-                    <span className="font-display" style={{ fontSize: '15px', fontWeight: 700, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{workout.title}</span>
-                    <button className="btn-ghost" style={{ flexShrink: 0 }} onClick={() => setMode('PLAN')}>Exit</button>
+                    <span className="font-display" style={{ fontSize:'16px', fontWeight:800, flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', textTransform:'uppercase', letterSpacing:'0.04em' }}>{workout.title}</span>
+                    <button className="btn-ghost" style={{ flexShrink:0, fontSize:'12px', padding:'7px 14px' }} onClick={()=>setMode('PLAN')}>EXIT</button>
                   </>
                 )}
               </div>
 
-              {/* Row 2: action buttons (plan mode only) */}
-              {mode === 'PLAN' && !editMode && (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="btn-ghost" style={{ flex: 1, fontSize: '14px', padding: '8px' }} onClick={() => setShowImport(true)}>Import</button>
-                  <button className="btn-ghost" style={{ flex: 1, fontSize: '14px', padding: '8px' }} onClick={openEdit}>Edit</button>
-                  <button className="btn-accent" style={{ flex: 1, fontSize: '14px', padding: '8px' }} onClick={startRun}>Start ▶</button>
+              {mode==='PLAN' && !editMode && (
+                <div style={{ display:'flex', gap:'8px' }}>
+                  <button className="btn-ghost" style={{ flex:1, fontSize:'12px', padding:'9px' }} onClick={()=>setShowImport(true)}>IMPORT</button>
+                  <button className="btn-ghost" style={{ flex:1, fontSize:'12px', padding:'9px' }} onClick={openEdit}>EDIT</button>
+                  <button className="btn-volt"  style={{ flex:1, fontSize:'13px', padding:'9px' }} onClick={startRun}>START ▶</button>
                 </div>
               )}
               {editMode && (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="btn-ghost" style={{ flex: 1 }} onClick={cancelEdit}>Cancel</button>
-                  <button className="btn-accent" style={{ flex: 1 }} onClick={saveEdit}>Save</button>
+                <div style={{ display:'flex', gap:'8px' }}>
+                  <button className="btn-ghost" style={{ flex:1 }} onClick={cancelEdit}>CANCEL</button>
+                  <button className="btn-volt"  style={{ flex:1 }} onClick={saveEdit}>SAVE</button>
                 </div>
               )}
             </div>
 
-            {/* Progress bar in run mode */}
-            {mode === 'RUN' && (
-              <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 16px 10px' }}>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${progressPct}%` }} />
-                </div>
-              </div>
+            {mode==='RUN' && (
+              <div className="progress-bar"><div className="progress-fill" style={{ width:`${progressPct}%` }} /></div>
             )}
 
             {banner && (
-              <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 16px 10px' }}>
-                <div style={{ fontSize: '13px', padding: '8px 12px', borderRadius: '8px', background: '#fffbeb', border: '1.5px solid #fde68a', color: '#92400e' }}>{banner}</div>
+              <div style={{ maxWidth:'680px', margin:'0 auto', padding:'0 16px 10px' }}>
+                <div style={{ fontSize:'12px', padding:'8px 12px', borderRadius:'2px', background:'#141a00', border:'1px solid #2a3800', color:'var(--volt)', letterSpacing:'0.04em' }}>{banner}</div>
               </div>
             )}
           </header>
 
-          <main style={{ maxWidth: '680px', margin: '0 auto', padding: '20px 16px 40px' }}>
+          <main style={{ maxWidth:'680px', margin:'0 auto', padding:'20px 16px 60px' }}>
 
-            {/* PLAN MODE */}
-            {mode === 'PLAN' && !editMode && (
+            {/* ── PLAN ── */}
+            {mode==='PLAN' && !editMode && (
               <div className="fade-in">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'20px' }}>
                   <div>
-                    <h1 className="font-display" style={{ fontSize: '24px', fontWeight: 800, margin: 0 }}>{workout.title}</h1>
-                    <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '2px' }}>
-                      {blocks.length} blocks · {blocks.reduce((s, b) => s + b.exercises.length, 0)} exercises
+                    <h1 className="font-display" style={{ fontSize:'clamp(28px,7vw,40px)', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.02em', margin:0, lineHeight:1 }}>{workout.title}</h1>
+                    <div style={{ fontSize:'11px', color:'var(--muted)', marginTop:'5px', textTransform:'uppercase', letterSpacing:'0.08em' }}>
+                      {blocks.length} blocks · {blocks.reduce((s,b)=>s+b.exercises.length,0)} exercises
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Rest:</span>
-                    <select value={restSeconds} onChange={e => setRestSeconds(Number(e.target.value))}
-                      style={{ fontSize: '13px', padding: '4px 8px' }}>
-                      <option value={15}>15s</option>
-                      <option value={30}>30s</option>
-                      <option value={45}>45s</option>
-                      <option value={60}>60s</option>
-                      <option value={90}>90s</option>
+                  <div style={{ display:'flex', alignItems:'center', gap:'8px', flexShrink:0 }}>
+                    <span style={{ fontSize:'11px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Rest</span>
+                    <select value={restSeconds} onChange={e=>setRestSeconds(Number(e.target.value))} style={{ fontSize:'13px', padding:'6px 10px' }}>
+                      {[15,30,45,60,90].map(s=><option key={s} value={s}>{s}s</option>)}
                     </select>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {blocks.map((blk, bi) => {
-                    const isMat = /mat/i.test(blk.name);
-                    const isWeights = /weight/i.test(blk.name);
-                    const tone = isMat ? 'badge-green' : isWeights ? 'badge-blue' : 'badge-gray';
-                    const label = isMat ? 'MAT' : isWeights ? 'WEIGHTS' : 'BLOCK';
-
+                <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+                  {blocks.map((blk,bi) => {
+                    const isMat=/mat/i.test(blk.name), isW=/weight/i.test(blk.name);
                     return (
-                      <div key={bi} className="card" style={{ padding: '16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontWeight: 700, fontSize: '15px' }}>{blk.name}</span>
-                            <span className={`badge ${tone}`}>{label}</span>
+                      <div key={bi} className="block-card">
+                        <div className="block-header">
+                          <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                            <span className="font-display" style={{ fontSize:'18px', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.04em' }}>{blk.name}</span>
+                            <span className={`badge ${isMat?'badge-green':isW?'badge-blue':'badge-gray'}`}>{isMat?'MAT':isW?'WEIGHTS':'BLOCK'}</span>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
-                              {blk.rounds}× round{blk.rounds > 1 ? 's' : ''}
-                            </span>
-                          </div>
+                          <span style={{ fontSize:'13px', color:'var(--volt)', fontWeight:800, fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.06em' }}>{blk.rounds}×</span>
                         </div>
-                        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          {(blk.exercises || []).map((ex, ei) => (
-                            <li key={ei} style={{ fontSize: '14px', color: 'var(--ink)', display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-                              <span>
-                                <span style={{ color: 'var(--muted)', marginRight: '6px', fontVariantNumeric: 'tabular-nums' }}>{ei + 1}.</span>
+                        <div style={{ padding:'12px 16px' }}>
+                          {(blk.exercises||[]).map((ex,ei)=>(
+                            <div key={ei} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'7px 0', borderBottom: ei<blk.exercises.length-1?'1px solid var(--border)':'none' }}>
+                              <span style={{ fontSize:'14px' }}>
+                                <span style={{ color:'var(--muted)', marginRight:'8px', fontSize:'12px', fontVariantNumeric:'tabular-nums' }}>{ei+1}</span>
                                 {ex.description}
                               </span>
-                              <span className="font-mono" style={{ fontSize: '12px', color: 'var(--muted)', flexShrink: 0 }}>
-                                {ex.duration}{ex.unit === 'seconds' ? 's' : ' reps'}
+                              <span className="font-mono" style={{ fontSize:'12px', color:'var(--volt)', flexShrink:0, marginLeft:'12px' }}>
+                                {ex.duration}{ex.unit==='seconds'?'s':' reps'}
                               </span>
-                            </li>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-
-                <button className="btn-danger" onClick={deleteWorkout} style={{ marginTop: '20px', fontSize: '13px' }}>
-                  Delete this workout
-                </button>
+                <button className="btn-danger" onClick={deleteWorkout} style={{ marginTop:'24px' }}>DELETE WORKOUT</button>
               </div>
             )}
 
-            {/* EDIT MODE */}
-            {mode === 'PLAN' && editMode && editDraft && (
+            {/* ── EDIT ── */}
+            {mode==='PLAN' && editMode && editDraft && (
               <div className="fade-in">
-                <p style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '16px' }}>
-                  Edit blocks and exercises below. Changes are saved when you tap Save.
+                <p style={{ fontSize:'11px', color:'var(--muted)', marginBottom:'16px', textTransform:'uppercase', letterSpacing:'0.06em' }}>
+                  Edit blocks and exercises. Tap Save when done.
                 </p>
-
-                {(editDraft.categories || []).map((blk, bi) => (
+                {(editDraft.categories||[]).map((blk,bi)=>(
                   <BlockEditor key={bi} blk={blk}
-                    onChange={updated => {
-                      const cats = [...editDraft.categories];
-                      cats[bi] = updated;
-                      setEditDraft(d => ({ ...d, categories: cats }));
-                    }}
-                    onDelete={() => {
-                      const cats = editDraft.categories.filter((_, i) => i !== bi);
-                      setEditDraft(d => ({ ...d, categories: cats }));
-                    }} />
+                    onChange={u=>{ const c=[...editDraft.categories]; c[bi]=u; setEditDraft(d=>({...d,categories:c})); }}
+                    onDelete={()=>setEditDraft(d=>({...d,categories:d.categories.filter((_,i)=>i!==bi)}))} />
                 ))}
-
-                <button className="btn-ghost" style={{ width: '100%', marginTop: '8px' }}
-                  onClick={() => setEditDraft(d => ({
-                    ...d, categories: [...d.categories, { name: 'New Block', rounds: 3, exercises: [{ description: '', duration: 30, unit: 'seconds', instructions: '' }] }]
-                  }))}>
-                  + Add block
+                <button className="btn-ghost" style={{ width:'100%', marginTop:'8px', fontSize:'12px' }}
+                  onClick={()=>setEditDraft(d=>({...d,categories:[...d.categories,{name:'New Block',rounds:3,exercises:[{description:'',duration:30,unit:'seconds',instructions:''}]}]}))}>
+                  + ADD BLOCK
                 </button>
               </div>
             )}
 
-            {/* RUN MODE */}
-            {mode === 'RUN' && curRestStep && (
-              <RestScreen key={idx} duration={curRestStep.duration} onSkip={next} autoRun={true} />
+            {/* ── REST ── */}
+            {mode==='RUN' && curRest && (
+              <RestScreen key={idx} duration={curRest.duration} onSkip={next} setFlashTrigger={setFlashTrigger} />
             )}
 
-            {mode === 'RUN' && current && curExStep && (
-              <div className="card slide-up" style={{ padding: '24px' }}>
-                {/* Step context */}
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
-                  {(() => {
-                    const blk = blocks[curExStep.bi];
-                    const isMat = /mat/i.test(blk?.name || '');
-                    const isWeights = /weight/i.test(blk?.name || '');
-                    return <span className={`badge ${isMat ? 'badge-green' : isWeights ? 'badge-blue' : 'badge-gray'}`}>{blk?.name}</span>;
+            {/* ── EXERCISE ── */}
+            {mode==='RUN' && current && curEx && (
+              <div className="card slide-up" style={{ padding:'24px' }}>
+                <div style={{ display:'flex', gap:'8px', alignItems:'center', marginBottom:'20px', flexWrap:'wrap' }}>
+                  {(()=>{
+                    const blk=blocks[curEx.bi];
+                    const isMat=/mat/i.test(blk?.name||''), isW=/weight/i.test(blk?.name||'');
+                    return <span className={`badge ${isMat?'badge-green':isW?'badge-blue':'badge-gray'}`}>{blk?.name}</span>;
                   })()}
-                  <span style={{ fontSize: '13px', color: 'var(--muted)' }}>
-                    Round {curExStep.ri}/{currentBlock?.rounds} · Exercise {curExStep.ei + 1}/{currentBlock?.exercises?.length}
+                  <span style={{ fontSize:'11px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>
+                    Round {curEx.ri}/{curBlock?.rounds}
                   </span>
-                  <span style={{ fontSize: '13px', color: 'var(--muted)', marginLeft: 'auto' }}>
-                    {idx + 1} / {schedule.length}
+                  <span style={{ fontSize:'12px', color:'var(--muted)', marginLeft:'auto', fontVariantNumeric:'tabular-nums', fontFamily:'DM Mono,monospace' }}>
+                    {idx+1}<span style={{ color:'var(--surface3)' }}>/</span>{schedule.length}
                   </span>
                 </div>
 
-                {/* Exercise name */}
-                <h2 className="font-display" style={{ fontSize: '32px', fontWeight: 800, margin: '0 0 8px', lineHeight: 1.1 }}>
+                <h2 className="font-display" style={{ fontSize:'clamp(36px,9vw,60px)', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.01em', margin:'0 0 16px', lineHeight:1 }}>
                   {current.description}
                 </h2>
 
-                {/* Coaching cues */}
                 {current.instructions && (
-                  <div className="cue-card" style={{ marginBottom: '8px' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '4px' }}>
-                      Coaching cues
-                    </div>
-                    <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#44321e' }}>
-                      {current.instructions}
-                    </div>
+                  <div className="cue-card" style={{ marginBottom:'12px' }}>
+                    <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--volt)', marginBottom:'6px' }}>Coaching cues</div>
+                    <div style={{ fontSize:'14px', lineHeight:'1.65', color:'#d4e8a0' }}>{current.instructions}</div>
                   </div>
                 )}
 
-                {/* Timer or reps */}
-                {current.unit === 'seconds' ? (
+                {current.unit==='seconds' ? (
                   <BigTimer key={seed} ms={toMs(current.duration)} running={running}
-                    onToggle={() => setRunning(r => !r)}
-                    onComplete={() => { playChime('complete'); setTimerDone(true); }} />
+                    onToggle={()=>setRunning(r=>!r)}
+                    onComplete={()=>{ playChime('complete'); setFlashTrigger(t=>t+1); setTimerDone(true); }}
+                    done={timerDone} />
                 ) : (
-                  <div style={{ marginTop: '24px' }}>
-                    <div className="font-display" style={{ fontSize: '52px', fontWeight: 800 }}>
-                      {current.duration}
-                      <span style={{ fontSize: '20px', fontWeight: 600, color: 'var(--muted)', marginLeft: '8px' }}>reps</span>
+                  <div style={{ marginTop:'24px' }}>
+                    <div style={{ display:'flex', alignItems:'baseline', gap:'10px' }}>
+                      <span className="font-display" style={{ fontSize:'96px', fontWeight:900, lineHeight:1, color:'var(--volt)', letterSpacing:'-0.02em' }}>{current.duration}</span>
+                      <span className="font-display" style={{ fontSize:'28px', fontWeight:700, color:'var(--muted)', textTransform:'uppercase' }}>reps</span>
                     </div>
-                    <button className="btn-accent" style={{ marginTop: '16px' }} onClick={next}>Done ✓</button>
+                    <button className="btn-volt" style={{ marginTop:'20px', fontSize:'14px', padding:'14px 28px' }} onClick={next}>DONE ✓</button>
                   </div>
                 )}
 
                 {timerDone && (
-                  <div style={{ marginTop: '12px', color: 'var(--green)', fontWeight: 600, fontSize: '14px' }}>
-                    ✓ Timer complete — tap Next
-                  </div>
+                  <div style={{ marginTop:'14px', color:'var(--volt)', fontWeight:800, fontSize:'12px', letterSpacing:'0.1em', textTransform:'uppercase' }}>✓ DONE — TAP NEXT</div>
                 )}
 
-                {/* Nav */}
-                <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
-                  <button className="btn-ghost" onClick={prev} disabled={idx === 0}>◀ Prev</button>
-                  <button className="btn-ghost" onClick={() => setMode('PLAN')}>Exit</button>
-                  <button className="btn-primary" style={{ marginLeft: 'auto' }} onClick={next}>
-                    {idx + 1 >= schedule.length ? 'Finish 🎉' : 'Next →'}
+                <div style={{ display:'flex', gap:'8px', marginTop:'28px' }}>
+                  <button className="btn-ghost" onClick={prev} disabled={idx===0} style={{ fontSize:'12px' }}>◀ PREV</button>
+                  <button className="btn-ghost" onClick={()=>setMode('PLAN')} style={{ fontSize:'12px' }}>EXIT</button>
+                  <button className="btn-volt"  style={{ marginLeft:'auto', fontSize:'13px', padding:'10px 24px' }} onClick={next}>
+                    {idx+1>=schedule.length ? 'FINISH 🎉' : 'NEXT →'}
                   </button>
                 </div>
               </div>
             )}
 
-            {mode === 'RUN' && schedule.length > 0 && !cur && (
-              <div className="card fade-in" style={{ padding: '40px 24px', textAlign: 'center' }}>
-                <div className="font-display" style={{ fontSize: '36px', fontWeight: 800 }}>Workout complete! 🎉</div>
-                <div style={{ color: 'var(--muted)', marginTop: '8px' }}>Great work.</div>
-                <button className="btn-primary" style={{ marginTop: '24px' }} onClick={() => setMode('PLAN')}>Back to plan</button>
+            {/* ── COMPLETE ── */}
+            {mode==='RUN' && schedule.length>0 && !cur && (
+              <div className="card fade-in" style={{ padding:'48px 24px', textAlign:'center' }}>
+                <div className="font-display" style={{ fontSize:'72px', fontWeight:900, textTransform:'uppercase', color:'var(--volt)', lineHeight:1 }}>Done.</div>
+                <div style={{ color:'var(--muted)', marginTop:'8px', fontSize:'12px', textTransform:'uppercase', letterSpacing:'0.1em' }}>Workout complete</div>
+                <button className="btn-volt" style={{ marginTop:'28px' }} onClick={()=>setMode('PLAN')}>BACK TO PLAN</button>
               </div>
             )}
-
           </main>
 
-          {showImport && (
-            <ImportModal onClose={() => setShowImport(false)} onImport={handleImport} />
-          )}
+          {showImport && <ImportModal onClose={()=>setShowImport(false)} onImport={handleImport} />}
         </div>
       );
     }
