@@ -164,46 +164,9 @@
 
   <script type="text/babel" data-presets="env,react" data-plugins="proposal-optional-chaining">
 
-    // ---------- AUDIO ----------
-    // Generates WAV data URIs — plays via HTML Audio element which respects
-    // media volume (not ringer switch) on iOS, so it works on silent mode.
-    function makeWavBase64(freqHz, durationSec, volume) {
-      const sr = 22050;
-      const n = Math.floor(sr * durationSec);
-      const buf = new ArrayBuffer(44 + n * 2);
-      const v = new DataView(buf);
-      const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-      ws(0,'RIFF'); v.setUint32(4, 36 + n*2, true); ws(8,'WAVE'); ws(12,'fmt ');
-      v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
-      v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
-      ws(36,'data'); v.setUint32(40, n*2, true);
-      for (let i = 0; i < n; i++) {
-        const t = i / sr;
-        const env = Math.min(1, t / 0.008) * Math.exp(-t * 5.5);
-        const samp = Math.sin(2 * Math.PI * freqHz * t) * env * volume * 32767;
-        v.setInt16(44 + i*2, Math.max(-32768, Math.min(32767, samp)), true);
-      }
-      const bytes = new Uint8Array(buf);
-      let b = ''; for (let i = 0; i < bytes.byteLength; i++) b += String.fromCharCode(bytes[i]);
-      return btoa(b);
-    }
-
-    const SND = {
-      hi:   `data:audio/wav;base64,${makeWavBase64(659.25, 0.45, 0.32)}`,
-      mid:  `data:audio/wav;base64,${makeWavBase64(523.25, 0.42, 0.30)}`,
-      rest: `data:audio/wav;base64,${makeWavBase64(392,    0.30, 0.22)}`,
-    };
-
-    function playAudio(src, delayMs = 0) {
-      setTimeout(() => {
-        try { const a = new Audio(src); a.volume = 1.0; a.play().catch(()=>{}); } catch(e) {}
-      }, delayMs);
-    }
-
-    function playChime(type = 'complete') {
-      if (type === 'complete') { playAudio(SND.mid, 0); playAudio(SND.hi, 170); }
-      else { playAudio(SND.rest, 0); }
-    }
+    // ---------- AUDIO — REMOVED ----------
+    // HTML Audio interrupts iOS media playback (Spotify etc). Screen flash is used instead.
+    function playChime() {} // no-op kept so call sites compile
 
     // ---------- FLASH OVERLAY ----------
     function FlashOverlay({ trigger }) {
@@ -593,14 +556,13 @@ Rules:
       const ms = toMs(duration);
       const [running, setRunning] = React.useState(true);
       const [done, setDone] = React.useState(false);
-      React.useEffect(() => { playChime('rest'); }, []);
       return (
         <div className="card scale-in" style={{ padding:'32px 24px', textAlign:'center' }}>
           <span className="badge badge-purple" style={{ marginBottom:'16px' }}>REST</span>
           <div className="font-display" style={{ fontSize:'40px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.02em', lineHeight:1 }}>Take a breather</div>
           <div style={{ color:'var(--muted)', fontSize:'14px', marginTop:'6px' }}>Next round coming up</div>
           <BigTimer ms={ms} running={running} onToggle={()=>setRunning(r=>!r)}
-            onComplete={()=>{ playChime('complete'); setFlashTrigger(t=>t+1); setDone(true); }}
+            onComplete={()=>{ setFlashTrigger(t=>t+1); setDone(true); }}
             isRest={true} done={done} />
           {done && <div style={{ color:'var(--rest-color)', marginTop:'16px', fontWeight:800, fontSize:'13px', letterSpacing:'0.08em', textTransform:'uppercase' }}>Rest complete — let's go</div>}
           <button className="btn-ghost" onClick={onSkip} style={{ marginTop:'24px', fontSize:'12px' }}>SKIP REST →</button>
@@ -823,16 +785,38 @@ Rules:
                 )}
 
                 {current.unit==='seconds' ? (
-                  <BigTimer key={seed} ms={toMs(current.duration)} running={running}
-                    onToggle={()=>setRunning(r=>!r)}
-                    onComplete={()=>{ playChime('complete'); setFlashTrigger(t=>t+1); setTimerDone(true); }}
-                    done={timerDone} />
+                  (() => {
+                    // Detect alternating exercises by name
+                    const isAlternating = /lunge|dead.?bug|hip.?flexor|hip.?circle|leg.?swing|clamshell|side.?plank|split.?squat|step.?up|single|lateral|windmill|bird.?dog|skater/i.test(current.description);
+                    return (
+                      <div>
+                        <BigTimer key={seed} ms={toMs(current.duration)} running={running}
+                          onToggle={()=>setRunning(r=>!r)}
+                          onComplete={()=>{ setFlashTrigger(t=>t+1); setTimerDone(true); }}
+                          done={timerDone} />
+                        {isAlternating && (
+                          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'8px', marginTop:'16px' }}>
+                            <div style={{ fontSize:'11px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:700 }}>
+                              {timerDone ? '✓ Side 1 done — flip & go' : 'Each side'}
+                            </div>
+                            <button className="btn-volt" style={{ fontSize:'13px', padding:'10px 24px' }}
+                              onClick={()=>{ setRunning(false); setTimerDone(false); setSeed(s=>s+1); setRunning(true); }}>
+                              FLIP → OTHER SIDE
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()
                 ) : (
                   <div style={{ marginTop:'24px' }}>
                     <div style={{ display:'flex', alignItems:'baseline', gap:'10px' }}>
                       <span className="font-display" style={{ fontSize:'96px', fontWeight:900, lineHeight:1, color:'var(--ink)', letterSpacing:'-0.02em' }}>{current.duration}</span>
                       <span className="font-display" style={{ fontSize:'28px', fontWeight:700, color:'var(--muted)', textTransform:'uppercase' }}>reps</span>
                     </div>
+                    {/lunge|dead.?bug|hip.?flexor|clamshell|side.?plank|split.?squat|step.?up|single|lateral|windmill|bird.?dog|skater/i.test(current.description) && (
+                      <div style={{ fontSize:'12px', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:700, marginTop:'4px' }}>per side</div>
+                    )}
                     <button className="btn-ink" style={{ marginTop:'20px', fontSize:'14px', padding:'14px 28px' }} onClick={next}>DONE ✓</button>
                   </div>
                 )}
